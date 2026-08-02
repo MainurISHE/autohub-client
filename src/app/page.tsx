@@ -1,7 +1,13 @@
-export default function Home() {
+import { Header } from "@/widgets/header";
+
+const HomePage = () => {
   return (
-    <div>
-      <p>Home Page</p>
-    </div>
+    <>
+      <Header />
+
+      <main>Home Page</main>
+    </>
   );
-}
+};
+
+export default HomePage;
