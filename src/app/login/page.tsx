@@ -10,7 +10,6 @@ import {
   loginSchema,
 } from "@/features/auth/model/schemas/login.schema";
 import { useLoginMutation } from "@/features/auth/hooks/use-login-mutation";
-import { useRouter } from "next/navigation";
 
 const LoginPage = () => {
   const form = useForm<LoginSchema>({
