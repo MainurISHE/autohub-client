@@ -11,14 +11,19 @@ type AuthState = {
   accessToken: string | null;
   user: User | null;
 
+  isInitialized: boolean
+
   setAccessToken: (accessToken: string) => void;
   setUser: (user: User) => void;
   logout: () => void;
+  setInitialized: (isInitialized: boolean) => void
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
   user: null,
+  isInitialized: false,
+  
 
   setAccessToken: (accessToken) =>
     set({
@@ -28,6 +33,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   setUser: (user) =>
     set({
       user,
+    }),
+
+  setInitialized: (isInitialized) => 
+    set({
+      isInitialized,
     }),
 
   logout: () =>

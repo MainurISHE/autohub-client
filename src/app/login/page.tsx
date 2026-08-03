@@ -16,10 +16,7 @@ const LoginPage = () => {
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
   });
-
   const loginMutation = useLoginMutation();
-
-  const router = useRouter();
 
   return (
     <main className="flex min-h-screen items-center justify-center">
@@ -31,11 +28,7 @@ const LoginPage = () => {
         <CardContent>
           <form
             onSubmit={form.handleSubmit((data) => {
-              loginMutation.mutate(data, {
-                onSuccess: () => {
-                  router.push("/profile")
-                }
-              });
+              loginMutation.mutate(data);
             })}
             className="space-y-4"
           >

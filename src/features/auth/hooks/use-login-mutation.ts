@@ -1,21 +1,25 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { authService } from "../api/auth.service";
 import { useAuthStore } from "../store/auth.store";
+import { userService } from "../api/user.service";
+import { useRouter } from "next/navigation";
+
 
 export const useLoginMutation = () => {
-  const { setAccessToken } = useAuthStore();
-  const queryClient = useQueryClient();
+  const { setAccessToken, setUser } = useAuthStore();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: authService.login,
 
-    onSuccess: ({ accessToken }) => {
-      console.log("ACCESS TOKEN:", accessToken);
-
+    onSuccess: async ({ accessToken }) => {
       setAccessToken(accessToken);
 
-      console.log("STORE:", useAuthStore.getState());
+      const user = await userService.getProfile();
 
+      setUser(user);
+
+      router.replace("/profile")
       console.log("Успешный вход");
     },
 
