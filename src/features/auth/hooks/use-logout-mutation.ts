@@ -1,3 +1,4 @@
+"use client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authService } from "../api/auth.service";
 import { useAuthStore } from "../store/auth.store";
@@ -16,7 +17,7 @@ export const useLogoutMutation = () => {
 
       queryClient.clear();
 
-      router.push("/login")
+      router.replace("/login")
     },
 
     onError: () => {

@@ -6,7 +6,7 @@ export const Logo = () => {
         <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
             <CarFront className="h-7 w-7 text-blue-600"/>
 
-            <span className="text-xl font-bold tracking-tight">
+            <span className="text-xl font-semibold tracking-tight ">
                 AutoHub
             </span>
         </Link>

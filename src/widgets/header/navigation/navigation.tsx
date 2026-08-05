@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 const links = [
   {
@@ -12,13 +16,20 @@ const links = [
 ];
 
 export const Navigation = () => {
+  const pathname = usePathname();
+
   return (
-    <nav className="flex items-center gap-6">
+    <nav className="flex items-center gap-2">
       {links.map((link) => (
         <Link
           key={link.href}
           href={link.href}
-          className="text-sm font-medium text-slate-600 transition-colors hover:text-slate-950"
+          className={cn(
+            "rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+            pathname === link.href
+              ? "bg-slate-100 text-slate-900"
+              : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+          )}
         >
           {link.label}
         </Link>
