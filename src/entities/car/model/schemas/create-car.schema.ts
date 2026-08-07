@@ -33,6 +33,14 @@ export const createCarSchema = z.object({
   color: z.string(),
 
   status: z.string(),
+
+  images: z.array(
+    z.object({
+      url: z.string(),
+      publicId: z.string(),
+      order: z.number(),
+    })
+  )
 });
 
 export type CreateCarSchema = z.input<typeof createCarSchema>;

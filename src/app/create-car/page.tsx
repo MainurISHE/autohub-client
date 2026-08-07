@@ -8,18 +8,26 @@ import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-    CreateCarData,
+  CreateCarData,
   createCarSchema,
   CreateCarSchema,
 } from "@/entities/car/model/schemas/create-car.schema";
 import { useCreateCarMutation } from "@/entities/car/hooks/use-create-car-mutation";
+import { useUploadImageMutation } from "@/entities/car/hooks/use-upload-image-mutation";
+import { ImageUpload } from "@/shared/ui/image-upload";
 
 export default function CreateCarPage() {
   const form = useForm<CreateCarSchema, any, CreateCarData>({
     resolver: zodResolver(createCarSchema),
+
+    defaultValues: {
+      images: [],
+    },
   });
 
   const createCarMutation = useCreateCarMutation();
+  const uploadImageMutation = useUploadImageMutation();
+  const uploadedImage = form.watch("images");
 
   return (
     <main className="flex justify-center py-10">
@@ -239,6 +247,33 @@ export default function CreateCarPage() {
                 </p>
               )}
             </div>
+
+            <div className="col-span-2">
+              <ImageUpload
+                isLoading={uploadImageMutation.isPending}
+                onSelect={async (file) => {
+                  const image = await uploadImageMutation.mutateAsync(file);
+
+                  form.setValue("images", [
+                    {
+                      url: image.url,
+                      publicId: image.publicId,
+                      order: 0,
+                    },
+                  ]);
+                }}
+              />
+            </div>
+
+            {uploadedImage.length > 0 && (
+              <div className="relative col-span-2">
+                <img
+                  src={uploadedImage[0].url}
+                  alt="Preview"
+                  className="h-64 w-full rounded-xl object-cover"
+                />
+              </div>
+            )}
 
             {/* Description */}
             <div className="col-span-2 space-y-2">
