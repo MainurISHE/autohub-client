@@ -6,7 +6,7 @@ import { CarsHeader } from "@/widgets/cars/cars-header";
 import { CarsGrid } from "@/widgets/cars/cars-grid";
 import { useDebounce } from "@/shared/hooks/use-debounce";
 
-export default function CarsPage() {
+export const CarsPage = () => {
   const [search, setSearch] = useState("");
 
   const debouncedSearch = useDebounce(search, 500)
@@ -24,3 +24,5 @@ export default function CarsPage() {
     </>
   );
 }
+
+export default CarsPage;

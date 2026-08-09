@@ -11,6 +11,8 @@ import {
 } from "@/features/auth/model/schemas/login.schema";
 import { useLoginMutation } from "@/features/auth/hooks/use-login-mutation";
 
+import { Mail } from "lucide-react";
+
 const LoginPage = () => {
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),

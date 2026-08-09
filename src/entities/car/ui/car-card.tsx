@@ -10,7 +10,7 @@ interface CarCardProps {
 
 export const CarCard = ({ car }: CarCardProps) => {
   return (
-    <article className="group overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+    <article className="group cursor-pointer overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
       <div className="relative h-56 overflow-hidden">
         <Image
           src={car.images[0]?.url ?? "/images/car-placeholder.jpg"}
