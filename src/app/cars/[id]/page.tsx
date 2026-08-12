@@ -1,8 +1,19 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useCarQuery } from "@/entities/car/hooks/use-car-query";
 import { Container } from "@/shared/ui/container";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   Calendar,
   Gauge,
@@ -13,12 +24,21 @@ import {
   Cog,
 } from "lucide-react";
 import { CarGallery } from "@/entities/car/ui/car-gallery";
+import { useAuthStore } from "@/features/auth/store/auth.store";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { useDeleteCarMutation } from "@/entities/car/hooks/use-delete-car-mutation";
 
 export default function CarPage() {
   const params = useParams();
   const id = Number(params.id);
 
   const { data, isLoading, error } = useCarQuery(id);
+  const { user } = useAuthStore();
+
+  const deleteCarMutation = useDeleteCarMutation();
+
+  const router = useRouter();
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -30,12 +50,26 @@ export default function CarPage() {
 
   const car = data;
 
+  if (!car) {
+    return <div>Car not found.</div>;
+  }
+
+  const canEdit = user?.role === "ADMIN" || user?.id === car.ownerId;
+
+  const handleDelete = () => {
+    deleteCarMutation.mutate(car.id, {
+      onSuccess: () => {
+        router.push("/cars");
+      },
+    });
+  };
+
   return (
     <Container>
       <div className="py-10">
         <div className="grid gap-8 lg:grid-cols-2">
           <div className="overflow-hidden rounded-2xl">
-            <CarGallery images={car?.images ?? []}/>
+            <CarGallery images={car?.images ?? []} />
           </div>
 
           <div>
@@ -43,9 +77,51 @@ export default function CarPage() {
               {car?.brand.name} {car?.title}
             </h1>
 
-            <p className="mt-4 text-3xl font-bold">
-              ${Number(car?.price).toLocaleString()}
-            </p>
+            <div className="mt-4 flex items-center justify-between">
+              <p className="text-3xl font-bold">
+                ${Number(car.price).toLocaleString()}
+              </p>
+
+              {canEdit && (
+                <div className="flex gap-2">
+                  <Button>
+                    <Link href={`/cars/${car.id}/edit`}>Edit</Link>
+                  </Button>
+
+                  <AlertDialog>
+                    <AlertDialogTrigger
+                      render={<Button variant="destructive" />}
+                    >
+                      Delete
+                    </AlertDialogTrigger>
+
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete this car?</AlertDialogTitle>
+
+                        <AlertDialogDescription>
+                          This action cannot be undone. The car and all of its
+                          images will be permanently deleted.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+
+                        <AlertDialogAction
+                          onClick={handleDelete}
+                          disabled={deleteCarMutation.isPending}
+                        >
+                          {deleteCarMutation.isPending
+                            ? "Deleting..."
+                            : "Delete"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              )}
+            </div>
 
             <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
               <div className="rounded-xl border p-4">

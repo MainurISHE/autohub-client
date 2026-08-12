@@ -27,6 +27,8 @@ export interface Car {
   color: string;
   status: string;
 
+  ownerId: number;
+
   brand: Brand;
   images: CarImage[];
 }

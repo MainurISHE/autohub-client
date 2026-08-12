@@ -26,10 +26,6 @@ export const ImageUpload = ({
 
   const [error, setError] = useState("");
 
-  const handleSelect = (files: File[]) => {
-    onSelect(files);
-  };
-
   return (
     <div className="space-y-4">
       {images.length > 0 && (

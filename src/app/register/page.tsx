@@ -47,7 +47,7 @@ export const RegisterPage = () => {
               )}
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="lastName">Last name*</Label>
 
               <Input
@@ -64,7 +64,7 @@ export const RegisterPage = () => {
               )}
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="email">Email*</Label>
 
               <Input
@@ -81,7 +81,7 @@ export const RegisterPage = () => {
               )}
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="phoneNumber">Phone Number</Label>
 
               <Input
@@ -98,7 +98,7 @@ export const RegisterPage = () => {
               )}
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="password">Password*</Label>
 
               <Input

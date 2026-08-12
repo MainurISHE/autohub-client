@@ -32,6 +32,18 @@ export const carService = {
     return response.data;
   },
 
+  update: async (id: number, data: CreateCarDto) => {
+    const response = await apiClient.patch(`/cars/${id}`, data)
+
+    return response.data
+  },
+
+  remove: async (id: number) => {
+    const response = await apiClient.delete(`/cars/${id}`)
+
+    return response.data
+  },
+
   deleteImage: async (publicId: string) => {
     const response = await apiClient.delete("/cloudinary/:publicId", {
       data: {
