@@ -1,17 +1,23 @@
-"use client";
-
 import { useCarsQuery } from "@/entities/car/hooks/use-cars-query";
 import { CarCard } from "@/entities/car/ui/car-card";
 import { Container } from "@/shared/ui/container";
 import Link from "next/link";
-import { useState } from "react";
+import { CarsPagination } from "./cars-pagination";
 
 interface CarsGridProps {
+  page: number;
+  limit: number;
   search: string;
+  onPageChange: (page: number) => void;
 }
 
-export const CarsGrid = ({ search }: CarsGridProps) => {
-  const { data, isLoading, error } = useCarsQuery(search);
+export const CarsGrid = ({
+  page,
+  limit,
+  search,
+  onPageChange,
+}: CarsGridProps) => {
+  const { data, isLoading, error } = useCarsQuery({ page, limit, search });
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -30,6 +36,14 @@ export const CarsGrid = ({ search }: CarsGridProps) => {
           </Link>
         ))}
       </div>
+
+      <CarsPagination
+        page={page}
+        totalPages={data?.meta.totalPages ?? 1}
+        hasNextPage={data?.meta.hasNextPage ?? false}
+        hasPreviousPage={data?.meta.hasPreviousPage ?? false}
+        onPageChange={onPageChange}
+      />
     </Container>
   );
 };

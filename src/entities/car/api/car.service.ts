@@ -3,10 +3,22 @@ import { Car, CarsResponse } from "../model/types/car.types";
 import { CreateCarDto } from "../model/dto/create-car.dto";
 import { CarOptions } from "../model/types/car-options.types";
 
+interface GetCarsParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
 export const carService = {
-  getAll: async (search?: string): Promise<CarsResponse> => {
+  getAll: async ({
+    page = 1,
+    limit = 12,
+    search,
+  }: GetCarsParams = {}): Promise<CarsResponse> => {
     const response = await apiClient.get<CarsResponse>("/cars", {
       params: {
+        page,
+        limit,
         search,
       },
     });
@@ -17,7 +29,7 @@ export const carService = {
   getById: async (id: number): Promise<Car> => {
     const response = await apiClient.get<Car>(`/cars/${id}`);
 
-    return response.data
+    return response.data;
   },
 
   getOptions: async (): Promise<CarOptions> => {
@@ -33,15 +45,15 @@ export const carService = {
   },
 
   update: async (id: number, data: CreateCarDto) => {
-    const response = await apiClient.patch(`/cars/${id}`, data)
+    const response = await apiClient.patch(`/cars/${id}`, data);
 
-    return response.data
+    return response.data;
   },
 
   remove: async (id: number) => {
-    const response = await apiClient.delete(`/cars/${id}`)
+    const response = await apiClient.delete(`/cars/${id}`);
 
-    return response.data
+    return response.data;
   },
 
   deleteImage: async (publicId: string) => {

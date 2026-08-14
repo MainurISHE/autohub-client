@@ -1,9 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { carService } from "../api/car.service";
 
-export const useCarsQuery = (search?: string) => {
+interface UseCarsQueryParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+export const useCarsQuery = ({page = 1, limit = 12, search}: UseCarsQueryParams = {}) => {
   return useQuery({
-    queryKey: ["cars", search],
-    queryFn: () => carService.getAll(search),
+    queryKey: ["cars", page, limit, search],
+    queryFn: () => carService.getAll({
+      page,
+      limit,
+      search,
+    }),
   });
 };

@@ -8,21 +8,30 @@ import { useDebounce } from "@/shared/hooks/use-debounce";
 
 export const CarsPage = () => {
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
 
-  const debouncedSearch = useDebounce(search, 500)
+  const debouncedSearch = useDebounce(search, 500);
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
 
   return (
     <>
       <CarsHeader
         search={search}
-        onSearchChange={setSearch}
+        onSearchChange={handleSearchChange}
       />
 
       <CarsGrid
         search={debouncedSearch}
+        page={page}
+        limit={12}
+        onPageChange={setPage}
       />
     </>
   );
-}
+};
 
 export default CarsPage;
