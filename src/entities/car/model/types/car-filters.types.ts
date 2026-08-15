@@ -8,4 +8,7 @@ export interface CarFilters {
   color?: string;
   minPrice?: number;
   maxPrice?: number;
+
+  sortBy?: string;
+  order?: string;
 }

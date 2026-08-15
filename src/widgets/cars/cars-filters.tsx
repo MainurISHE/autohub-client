@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { CarSort } from "@/entities/car/model/types/car-sort.types";
 import {
   Select,
   SelectContent,
@@ -22,8 +25,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-import { SlidersHorizontal } from "lucide-react";
-
 import { CarFilters } from "@/entities/car/model/types/car-filters.types";
 import { useBrandQuery } from "@/entities/brand/hooks/use-brands-query";
 import { useCarOptionsQuery } from "@/entities/car/hooks/use-car-options-query";
@@ -41,6 +42,10 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
 
   const [draftFilters, setDraftFilters] = useState<CarFilters>(filters);
 
+  useEffect(() => {
+    setDraftFilters(filters);
+  }, [filters]);
+
   const handleApply = () => {
     onFiltersChange(draftFilters);
   };
@@ -50,28 +55,44 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
     onFiltersChange({});
   };
 
+  const activeFiltersCount =
+    Object.entries(filters).filter(
+      ([key, value]) =>
+        key !== "sortBy" &&
+        key !== "order" &&
+        value !== undefined &&
+        value !== "",
+    ).length + (filters.sortBy && filters.order ? 1 : 0);
+
   return (
-    <div className="flex justify-end">
-      <Sheet>
-        <SheetTrigger
-          render={
-            <Button variant="default" className="h-12 w-32">
-              Filters <SlidersHorizontal />
-            </Button>
-          }
-        />
+    <Sheet>
+      <SheetTrigger
+        render={
+          <Button variant="default" className="h-10 w-36">
+            Filters
+            {activeFiltersCount > 0 && (
+              <span className="ml-1 rounded-full bg-primary-foreground/20 px-1.5 text-xs">
+                {activeFiltersCount}
+              </span>
+            )}
+          </Button>
+        }
+      />
 
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Filters</SheetTitle>
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>Filters</SheetTitle>
 
-            <SheetDescription>
-              Filter cars by their characteristics.
-            </SheetDescription>
-          </SheetHeader>
+          <SheetDescription>
+            Filter cars by their characteristics.
+          </SheetDescription>
+        </SheetHeader>
 
-          <div className="flex flex-col gap-4 p-4">
-            {/* Brand */}
+        <div className="flex flex-col gap-4 overflow-y-auto p-4">
+          {/* Brand */}
+          <div className="space-y-2">
+            <Label>Brand</Label>
+
             <Select
               value={draftFilters.brandId?.toString() ?? ""}
               onValueChange={(value) => {
@@ -98,8 +119,12 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
                 ))}
               </SelectContent>
             </Select>
+          </div>
 
-            {/* Fuel */}
+          {/* Fuel */}
+          <div className="space-y-2">
+            <Label>Fuel</Label>
+
             <CarFilterSelect
               placeholder="Fuel"
               value={draftFilters.fuelType}
@@ -111,8 +136,12 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
                 });
               }}
             />
+          </div>
 
-            {/* Transmission */}
+          {/* Transmission */}
+          <div className="space-y-2">
+            <Label>Transmission</Label>
+
             <CarFilterSelect
               placeholder="Transmission"
               value={draftFilters.transmission}
@@ -124,8 +153,12 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
                 });
               }}
             />
+          </div>
 
-            {/* Body */}
+          {/* Body */}
+          <div className="space-y-2">
+            <Label>Body type</Label>
+
             <CarFilterSelect
               placeholder="Body type"
               value={draftFilters.bodyType}
@@ -137,8 +170,12 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
                 });
               }}
             />
+          </div>
 
-            {/* Drive */}
+          {/* Drive */}
+          <div className="space-y-2">
+            <Label>Drive</Label>
+
             <CarFilterSelect
               placeholder="Drive"
               value={draftFilters.driveType}
@@ -150,8 +187,12 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
                 });
               }}
             />
+          </div>
 
-            {/* Color */}
+          {/* Color */}
+          <div className="space-y-2">
+            <Label>Color</Label>
+
             <CarFilterSelect
               placeholder="Color"
               value={draftFilters.color}
@@ -163,8 +204,12 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
                 });
               }}
             />
+          </div>
 
-            {/* Status */}
+          {/* Status */}
+          <div className="space-y-2">
+            <Label>Status</Label>
+
             <CarFilterSelect
               placeholder="Status"
               value={draftFilters.status}
@@ -178,17 +223,99 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
             />
           </div>
 
-          <SheetFooter>
-            <Button variant="outline" onClick={handleReset}>
-              Reset
-            </Button>
+          <div className="space-y-2">
+            <Label>Sort by</Label>
 
-            <SheetClose
-              render={<Button onClick={handleApply}>Apply filters</Button>}
-            />
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
-    </div>
+            <Select
+              value={
+                draftFilters.sortBy && draftFilters.order
+                  ? `${draftFilters.sortBy}-${draftFilters.order}`
+                  : ""
+              }
+              onValueChange={(value) => {
+                if (!value) return;
+
+                const [sortBy, order] = value.split("-");
+
+                setDraftFilters({
+                  ...draftFilters,
+                  sortBy,
+                  order,
+                });
+              }}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem value="price-asc">Price: low to high</SelectItem>
+
+                <SelectItem value="price-desc">Price: high to low</SelectItem>
+
+                <SelectItem value="year-desc">Year: newest first</SelectItem>
+
+                <SelectItem value="year-asc">Year: oldest first</SelectItem>
+
+                <SelectItem value="mileage-asc">
+                  Mileage: low to high
+                </SelectItem>
+
+                <SelectItem value="mileage-desc">
+                  Mileage: high to low
+                </SelectItem>
+
+                <SelectItem value="createdAt-desc">Newest listings</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Price */}
+          <div className="space-y-2">
+            <Label>Price</Label>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                type="number"
+                placeholder="Min"
+                value={draftFilters.minPrice ?? ""}
+                onChange={(event) => {
+                  setDraftFilters({
+                    ...draftFilters,
+                    minPrice: event.target.value
+                      ? Number(event.target.value)
+                      : undefined,
+                  });
+                }}
+              />
+
+              <Input
+                type="number"
+                placeholder="Max"
+                value={draftFilters.maxPrice ?? ""}
+                onChange={(event) => {
+                  setDraftFilters({
+                    ...draftFilters,
+                    maxPrice: event.target.value
+                      ? Number(event.target.value)
+                      : undefined,
+                  });
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <SheetFooter>
+          <Button variant="outline" onClick={handleReset}>
+            Reset
+          </Button>
+
+          <SheetClose
+            render={<Button onClick={handleApply}>Apply filters</Button>}
+          />
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 };
