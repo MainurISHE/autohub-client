@@ -34,7 +34,9 @@ export const FormSelect = ({
       }}
     >
       <SelectTrigger className="w-full">
-        <SelectValue placeholder={placeholder} />
+        <SelectValue placeholder={placeholder}>
+          {options.find((option) => option.value === value)?.label}
+        </SelectValue>
       </SelectTrigger>
 
       <SelectContent>

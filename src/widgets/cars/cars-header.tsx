@@ -1,14 +1,17 @@
+import { ReactNode } from "react";
 import { Container } from "@/shared/ui/container";
 import { CarsSearch } from "./cars-search";
 
 interface CarsHeaderProps {
   search: string;
   onSearchChange: (value: string) => void;
+  children?: ReactNode;
 }
 
 export const CarsHeader = ({
   search,
   onSearchChange,
+  children,
 }: CarsHeaderProps) => {
   return (
     <section className="py-10">
@@ -28,10 +31,16 @@ export const CarsHeader = ({
             </p>
           </div>
 
-          <CarsSearch 
-          search={search}
-          onSearchChange={onSearchChange}
-          />
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <CarsSearch
+                search={search}
+                onSearchChange={onSearchChange}
+              />
+            </div>
+
+            {children}
+          </div>
         </div>
       </Container>
     </section>

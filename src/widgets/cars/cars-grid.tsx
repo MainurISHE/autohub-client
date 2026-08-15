@@ -3,11 +3,13 @@ import { CarCard } from "@/entities/car/ui/car-card";
 import { Container } from "@/shared/ui/container";
 import Link from "next/link";
 import { CarsPagination } from "./cars-pagination";
+import { CarFilters } from "@/entities/car/model/types/car-filters.types";
 
 interface CarsGridProps {
   page: number;
   limit: number;
   search: string;
+  filters: CarFilters;
   onPageChange: (page: number) => void;
 }
 
@@ -15,9 +17,10 @@ export const CarsGrid = ({
   page,
   limit,
   search,
+  filters,
   onPageChange,
 }: CarsGridProps) => {
-  const { data, isLoading, error } = useCarsQuery({ page, limit, search });
+  const { data, isLoading, error } = useCarsQuery({ page, limit, search, ...filters });
 
   if (isLoading) {
     return <div>Loading...</div>;

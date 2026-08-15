@@ -7,6 +7,20 @@ interface GetCarsParams {
   page?: number;
   limit?: number;
   search?: string;
+
+  brandId?: number;
+  status?: string;
+  fuelType?: string;
+  bodyType?: string;
+  driveType?: string;
+  transmission?: string;
+  color?: string;
+
+  minPrice?: number;
+  maxPrice?: number;
+
+  sortBy?: string;
+  order?: string;
 }
 
 export const carService = {
@@ -14,12 +28,34 @@ export const carService = {
     page = 1,
     limit = 12,
     search,
+    brandId,
+    status,
+    fuelType,
+    bodyType,
+    driveType,
+    transmission,
+    color,
+    minPrice,
+    maxPrice,
+    sortBy,
+    order,
   }: GetCarsParams = {}): Promise<CarsResponse> => {
     const response = await apiClient.get<CarsResponse>("/cars", {
       params: {
         page,
         limit,
         search,
+        brandId,
+        status,
+        fuelType,
+        bodyType,
+        driveType,
+        transmission,
+        color,
+        minPrice,
+        maxPrice,
+        sortBy,
+        order,
       },
     });
 
