@@ -74,6 +74,12 @@ export const carService = {
     return response.data;
   },
 
+  getMyCars: async (): Promise<Car[]> => {
+    const response = await apiClient.get<Car[]>("/cars/my");
+
+    return response.data;
+  },
+
   create: async (data: CreateCarDto) => {
     const response = await apiClient.post("/cars", data);
 
