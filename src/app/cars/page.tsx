@@ -14,7 +14,6 @@ export const CarsPage = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-
   const search = searchParams.get("search") ?? "";
 
   const page = Number(searchParams.get("page")) || 1;
@@ -126,6 +125,25 @@ export const CarsPage = () => {
     router.push(`${pathname}?${params.toString()}`);
   };
 
+  const handleResetFilters = () => {
+    setSearchInput("");
+    updateUrl({
+      search: undefined,
+      page: "1",
+      brandId: undefined,
+      status: undefined,
+      fuelType: undefined,
+      bodyType: undefined,
+      driveType: undefined,
+      transmission: undefined,
+      color: undefined,
+      minPrice: undefined,
+      maxPrice: undefined,
+      sortBy: undefined,
+      order: undefined,
+    });
+  };
+
   return (
     <>
       <CarsHeader search={searchInput} onSearchChange={handleSearchChange}>
@@ -138,6 +156,7 @@ export const CarsPage = () => {
         limit={12}
         filters={filters}
         onPageChange={handlePageChange}
+        onResetFilters={handleResetFilters}
       />
     </>
   );
