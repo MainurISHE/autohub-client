@@ -34,13 +34,13 @@ export const CarActions = ({ carId }: CarActionsProps) => {
 
   return (
     <div className="flex gap-2">
-      <Button variant="outline" onClick={handleEdit}>
+      <Button variant="outline" size="lg" onClick={handleEdit}>
         Edit
       </Button>
 
       <AlertDialog>
         <AlertDialogTrigger
-          render={<Button variant="destructive">Delete</Button>}
+          render={<Button variant="destructive" size="lg">Delete</Button>}
         />
 
         <AlertDialogContent>

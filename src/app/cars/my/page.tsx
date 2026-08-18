@@ -1,25 +1,51 @@
 "use client";
 
 import { useMyCarsQuery } from "@/entities/car/hooks/use-my-cars-query";
-import { CarsList } from "@/entities/car/ui/cars-list";
 import { Container } from "@/shared/ui/container";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
-import { CarActions } from "@/entities/car/ui/car-actions";
+import { MyCarCard } from "@/entities/car/ui/my-car-card";
+import { MyCarCardSkeleton } from "@/entities/car/ui/my-car-card-skeleton";
 
 export default function MyCarsPage() {
   const { data, isLoading, error } = useMyCarsQuery();
   const router = useRouter();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Container>
+        <section className="py-10">
+          <div className="mb-8">
+            <div className="h-4 w-20 animate-pulse rounded bg-muted" />
+
+            <div className="mt-3 h-10 w-40 animate-pulse rounded-md bg-muted" />
+
+            <div className="mt-3 h-5 w-72 animate-pulse rounded-md bg-muted" />
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <MyCarCardSkeleton key={index} />
+            ))}
+          </div>
+        </section>
+      </Container>
+    );
   }
 
   if (error) {
-    console.log(error);
+    return (
+      <Container>
+        <section className="flex min-h-[400px] flex-col items-center justify-center text-center">
+          <h2 className="text-xl font-semibold">Failed to load your cars</h2>
 
-    return <pre>{JSON.stringify(error, null, 2)}</pre>;
+          <p className="mt-2 max-w-md text-muted-foreground">
+            Something went wrong while loading your listings. Please try again.
+          </p>
+        </section>
+      </Container>
+    );
   }
 
   return (
@@ -56,7 +82,11 @@ export default function MyCarsPage() {
             </Button>
           </div>
         ) : (
-          <CarsList cars={data ?? []} actions={(car) => <CarActions carId={car.id} />} />
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {data?.map((car) => (
+              <MyCarCard key={car.id} car={car} />
+            ))}
+          </div>
         )}
       </section>
     </Container>

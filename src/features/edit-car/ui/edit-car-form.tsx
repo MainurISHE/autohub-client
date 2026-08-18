@@ -125,11 +125,13 @@ export const EditCarForm = ({ id }: EditCarFormProps) => {
     );
   };
 
-  const handleSubmit = (data: CreateCarData) => {
-    updateCarMutation.mutate({
+  const handleSubmit = async (data: CreateCarData) => {
+    updateCarMutation.mutateAsync({
       id,
       data,
     });
+
+    router.push(`/cars/${id}`)
   };
 
   if (!isInitialized || isLoading) {
