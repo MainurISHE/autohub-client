@@ -27,6 +27,7 @@ import { CarGallery } from "@/entities/car/ui/car-gallery";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { Button } from "@/components/ui/button";
 import { useDeleteCarMutation } from "@/entities/car/hooks/use-delete-car-mutation";
+import { CarDetailsSkeleton } from "@/entities/car/ui/car-details-skeleton";
 
 export default function CarPage() {
   const params = useParams();
@@ -40,17 +41,43 @@ export default function CarPage() {
   const router = useRouter();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Container>
+        <div className="py-10">
+          <CarDetailsSkeleton />
+        </div>
+      </Container>
+    );
   }
 
   if (error) {
-    return <div>Something went wrong.</div>;
+    return (
+      <Container>
+        <div className="flex min-h-[500px] flex-col items-center justify-center text-center">
+          <h2 className="text-2xl font-semibold">Failed to load car</h2>
+
+          <p className="mt-2 max-w-md text-muted-foreground">
+            Something went wrong while loading this car. Please try again.
+          </p>
+        </div>
+      </Container>
+    );
   }
 
   const car = data;
 
   if (!car) {
-    return <div>Car not found.</div>;
+    return (
+      <Container>
+        <div className="flex min-h-[500px] flex-col items-center justify-center text-center">
+          <h2 className="text-2xl font-semibold">Car not found</h2>
+
+          <p className="mt-2 text-muted-foreground">
+            The car you are looking for does not exist or has been removed.
+          </p>
+        </div>
+      </Container>
+    );
   }
 
   const canEdit = user?.role === "ADMIN" || user?.id === car.ownerId;
@@ -97,9 +124,7 @@ export default function CarPage() {
 
               {canEdit && (
                 <div className="flex gap-2">
-                  <Button
-                    onClick={() => router.push(`/cars/${car.id}/edit`)}
-                  >
+                  <Button onClick={() => router.push(`/cars/${car.id}/edit`)}>
                     Edit
                   </Button>
 
@@ -112,9 +137,7 @@ export default function CarPage() {
 
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Delete this car?
-                        </AlertDialogTitle>
+                        <AlertDialogTitle>Delete this car?</AlertDialogTitle>
 
                         <AlertDialogDescription>
                           This action cannot be undone. The car and all of its
@@ -123,9 +146,7 @@ export default function CarPage() {
                       </AlertDialogHeader>
 
                       <AlertDialogFooter>
-                        <AlertDialogCancel>
-                          Cancel
-                        </AlertDialogCancel>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
 
                         <AlertDialogAction
                           onClick={handleDelete}
@@ -166,9 +187,7 @@ export default function CarPage() {
 
               <div className="rounded-xl border p-4">
                 <Settings2 className="mb-3 h-5 w-5 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">
-                  Transmission
-                </p>
+                <p className="text-sm text-muted-foreground">Transmission</p>
                 <p className="mt-1 font-semibold">{car.transmission}</p>
               </div>
 
