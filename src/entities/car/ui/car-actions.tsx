@@ -18,9 +18,17 @@ import {
 
 interface CarActionsProps {
   carId: number;
+  isOwner: boolean;
+  canEdit: boolean;
+  onContact: () => void;
 }
 
-export const CarActions = ({ carId }: CarActionsProps) => {
+export const CarActions = ({
+  carId,
+  isOwner,
+  canEdit,
+  onContact,
+}: CarActionsProps) => {
   const router = useRouter();
   const deleteCarMutation = useDeleteCarMutation();
 
@@ -34,37 +42,54 @@ export const CarActions = ({ carId }: CarActionsProps) => {
 
   return (
     <div className="flex gap-2">
-      <Button variant="outline" size="lg" onClick={handleEdit}>
-        Edit
-      </Button>
+      {canEdit && (
+        <>
+          <Button variant="outline" size="lg" onClick={handleEdit}>
+            Edit
+          </Button>
 
-      <AlertDialog>
-        <AlertDialogTrigger
-          render={<Button variant="destructive" size="lg">Delete</Button>}
-        />
+          <AlertDialog>
+            <AlertDialogTrigger
+              render={
+                <Button variant="destructive" size="lg">
+                  Delete
+                </Button>
+              }
+            />
 
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete this car?</AlertDialogTitle>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete this car?</AlertDialogTitle>
 
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete this
-              car listing.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete
+                  this car listing.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
 
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
 
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deleteCarMutation.isPending}
-            >
-              {deleteCarMutation.isPending ? "Deleting..." : "Delete"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  disabled={deleteCarMutation.isPending}
+                >
+                  {deleteCarMutation.isPending ? "Deleting..." : "Delete"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
+      )}
+
+      {!isOwner && (
+        <Button
+          size="lg"
+          onClick={onContact}
+        >
+          Contact seller
+        </Button>
+      )}
     </div>
   );
 };

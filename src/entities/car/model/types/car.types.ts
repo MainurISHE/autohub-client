@@ -3,6 +3,13 @@ export interface Brand {
   name: string;
 }
 
+export interface CarOwner {
+  id: number;
+  name: string;
+  lastName: string;
+  avatarUrl: string | null;
+}
+
 export interface CarImage {
   id: number;
   url: string;
@@ -28,6 +35,7 @@ export interface Car {
   status: string;
 
   ownerId: number;
+  owner: CarOwner;
 
   brand: Brand;
   images: CarImage[];

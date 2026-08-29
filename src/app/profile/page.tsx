@@ -38,12 +38,14 @@ export const ProfilePage = () => {
   return (
     <div>
       <div>
-        <p>{data?.name}</p>
-        <p>{data?.email}</p>
-        <p>{data?.role}</p>
+        <p>{data.name}</p>
+        <p>{data.email}</p>
+        <p>{data.role}</p>
       </div>
 
-      <Button onClick={() => logoutMutation.mutate()}>Logout</Button>
+      <Button onClick={() => logoutMutation.mutate()}>
+        Logout
+      </Button>
     </div>
   );
 };

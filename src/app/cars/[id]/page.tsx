@@ -1,19 +1,11 @@
 "use client";
 
+import { useState } from "react";
+import { SellerDialog } from "@/entities/user/ui/seller-dialog";
+import { CarActions } from "@/entities/car/ui/car-actions";
 import { useParams, useRouter } from "next/navigation";
 import { useCarQuery } from "@/entities/car/hooks/use-car-query";
 import { Container } from "@/shared/ui/container";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import {
   Calendar,
   Gauge,
@@ -25,20 +17,20 @@ import {
 } from "lucide-react";
 import { CarGallery } from "@/entities/car/ui/car-gallery";
 import { useAuthStore } from "@/features/auth/store/auth.store";
-import { Button } from "@/components/ui/button";
-import { useDeleteCarMutation } from "@/entities/car/hooks/use-delete-car-mutation";
+import { useCreateConversationMutation } from "@/entities/conversation/hooks/use-create-conversation-mutation";
 import { CarDetailsSkeleton } from "@/entities/car/ui/car-details-skeleton";
 
 export default function CarPage() {
   const params = useParams();
   const id = Number(params.id);
 
+  const createConversationMutation = useCreateConversationMutation();
+
   const { data, isLoading, error } = useCarQuery(id);
   const { user } = useAuthStore();
 
-  const deleteCarMutation = useDeleteCarMutation();
-
   const router = useRouter();
+  const [isSellerDialogOpen, setIsSellerDialogOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -82,12 +74,19 @@ export default function CarPage() {
 
   const canEdit = user?.role === "ADMIN" || user?.id === car.ownerId;
 
-  const handleDelete = () => {
-    deleteCarMutation.mutate(car.id, {
-      onSuccess: () => {
-        router.push("/cars");
-      },
-    });
+  const isOwner = user?.id === car.ownerId;
+
+  const handleContact = async () => {
+    if (!user) {
+      router.push(`/register?redirect=/cars/${car.id}`);
+      return;
+    }
+
+    const conversation = await createConversationMutation.mutateAsync(
+      car.ownerId,
+    );
+
+    router.push(`/messages/${conversation.id}`);
   };
 
   return (
@@ -122,45 +121,21 @@ export default function CarPage() {
                 ${Number(car.price).toLocaleString()}
               </p>
 
-              {canEdit && (
-                <div className="flex gap-2">
-                  <Button onClick={() => router.push(`/cars/${car.id}/edit`)}>
-                    Edit
-                  </Button>
+              <CarActions
+                carId={car.id}
+                isOwner={isOwner}
+                canEdit={canEdit}
+                onContact={handleContact}
+              />
 
-                  <AlertDialog>
-                    <AlertDialogTrigger
-                      render={<Button variant="destructive" />}
-                    >
-                      Delete
-                    </AlertDialogTrigger>
-
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete this car?</AlertDialogTitle>
-
-                        <AlertDialogDescription>
-                          This action cannot be undone. The car and all of its
-                          images will be permanently deleted.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-
-                        <AlertDialogAction
-                          onClick={handleDelete}
-                          disabled={deleteCarMutation.isPending}
-                        >
-                          {deleteCarMutation.isPending
-                            ? "Deleting..."
-                            : "Delete"}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              )}
+              <SellerDialog
+                seller={car.owner}
+                open={isSellerDialogOpen}
+                onOpenChange={setIsSellerDialogOpen}
+                onMessage={() => {
+                  console.log("Message seller:", car.owner.id);
+                }}
+              />
             </div>
 
             {/* Specs */}

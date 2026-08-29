@@ -8,6 +8,8 @@ import { userService } from "../api/user.service";
 export const useRegisterMutation = () => {
   const { setAccessToken, setUser } = useAuthStore();
   const router = useRouter();
+  const searchParams = new URLSearchParams(window.location.search);
+  const returnUrl = searchParams.get("returnUrl");
 
   return useMutation({
     mutationFn: authService.register,
@@ -19,7 +21,7 @@ export const useRegisterMutation = () => {
 
       setUser(user);
 
-      router.replace("/profile");
+      router.replace(returnUrl ?? "/profile");
       console.log("Успешная регистрация");
     },
 
