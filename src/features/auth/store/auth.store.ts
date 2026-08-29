@@ -1,29 +1,31 @@
 import { create } from "zustand";
 
-type User = {
+interface User {
   id: number;
   name: string;
+  lastName: string;
   email: string;
   role: string;
-};
+  phoneNumber?: string | null;
+  avatarUrl?: string | null;
+}
 
 type AuthState = {
   accessToken: string | null;
   user: User | null;
 
-  isInitialized: boolean
+  isInitialized: boolean;
 
   setAccessToken: (accessToken: string) => void;
   setUser: (user: User) => void;
   logout: () => void;
-  setInitialized: (isInitialized: boolean) => void
+  setInitialized: (isInitialized: boolean) => void;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
   user: null,
   isInitialized: false,
-  
 
   setAccessToken: (accessToken) =>
     set({
@@ -35,7 +37,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       user,
     }),
 
-  setInitialized: (isInitialized) => 
+  setInitialized: (isInitialized) =>
     set({
       isInitialized,
     }),
