@@ -78,9 +78,7 @@ export const CarsGrid = ({
 
       <div className="grid grid-cols-1 gap-6 pb-12 md:grid-cols-2 xl:grid-cols-3">
         {data?.data.map((car) => (
-          <Link key={car.id} href={`/cars/${car.id}`}>
-            <CarCard car={car} />
-          </Link>
+          <CarCard key={car.id} car={car} />
         ))}
       </div>
 

@@ -19,6 +19,7 @@ import { CarGallery } from "@/entities/car/ui/car-gallery";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { useCreateConversationMutation } from "@/entities/conversation/hooks/use-create-conversation-mutation";
 import { CarDetailsSkeleton } from "@/entities/car/ui/car-details-skeleton";
+import { FavoriteButton } from "@/entities/favorite/ui/favorite-button";
 
 export default function CarPage() {
   const params = useParams();
@@ -121,12 +122,16 @@ export default function CarPage() {
                 ${Number(car.price).toLocaleString()}
               </p>
 
-              <CarActions
-                carId={car.id}
-                isOwner={isOwner}
-                canEdit={canEdit}
-                onContact={handleContact}
-              />
+              <div className="flex items-center gap-2">
+                <FavoriteButton carId={car.id} />
+
+                <CarActions
+                  carId={car.id}
+                  isOwner={isOwner}
+                  canEdit={canEdit}
+                  onContact={handleContact}
+                />
+              </div>
 
               <SellerDialog
                 seller={car.owner}
