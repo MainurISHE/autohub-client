@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { SellerDialog } from "@/entities/user/ui/seller-dialog";
 import { CarActions } from "@/entities/car/ui/car-actions";
@@ -14,12 +15,14 @@ import {
   CarFront,
   Palette,
   Cog,
+  User,
 } from "lucide-react";
 import { CarGallery } from "@/entities/car/ui/car-gallery";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { useCreateConversationMutation } from "@/entities/conversation/hooks/use-create-conversation-mutation";
 import { CarDetailsSkeleton } from "@/entities/car/ui/car-details-skeleton";
 import { FavoriteButton } from "@/entities/favorite/ui/favorite-button";
+import { BackButton } from "@/shared/ui/back-button/back-button";
 
 export default function CarPage() {
   const params = useParams();
@@ -79,19 +82,31 @@ export default function CarPage() {
 
   const handleContact = async () => {
     if (!user) {
-      router.push(`/register?redirect=/cars/${car.id}`);
+      router.push(`/login?redirect=/cars/${car.id}`);
       return;
     }
 
-    const conversation = await createConversationMutation.mutateAsync(
-      car.ownerId,
-    );
+    if (user.id === car.ownerId) {
+      return;
+    }
 
-    router.push(`/messages/${conversation.id}`);
+    try {
+      const conversation = await createConversationMutation.mutateAsync(
+        car.ownerId,
+      );
+
+      router.push(`/messages?conversation=${conversation.id}`);
+    } catch (error) {
+      console.error("Failed to create conversation:", error);
+    }
   };
 
   return (
     <Container>
+      <div className="py-3">
+        <BackButton label="Back to cars" />
+      </div>
+
       <div className="py-10">
         <div className="grid gap-8 lg:grid-cols-2">
           <div className="overflow-hidden rounded-2xl">
@@ -130,6 +145,7 @@ export default function CarPage() {
                   isOwner={isOwner}
                   canEdit={canEdit}
                   onContact={handleContact}
+                  isContactPending={createConversationMutation.isPending}
                 />
               </div>
 
@@ -194,6 +210,38 @@ export default function CarPage() {
                 <p className="text-sm text-muted-foreground">Engine</p>
                 <p className="mt-1 font-semibold">{car.engineVolume} L</p>
               </div>
+            </div>
+
+            {/* Seller */}
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold">Seller</h2>
+
+              <Link
+                href={`/users/${car.owner.id}`}
+                className="mt-4 flex items-center gap-3 rounded-xl border p-4 transition-colors hover:bg-muted"
+              >
+                {car.owner.avatarUrl ? (
+                  <img
+                    src={car.owner.avatarUrl}
+                    alt={`${car.owner.name} ${car.owner.lastName}`}
+                    className="h-12 w-12 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                    <User className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                )}
+
+                <div>
+                  <p className="font-semibold">
+                    {car.owner.name} {car.owner.lastName}
+                  </p>
+
+                  <p className="text-sm text-muted-foreground">
+                    View seller profile
+                  </p>
+                </div>
+              </Link>
             </div>
 
             {/* Description */}

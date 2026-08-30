@@ -20,6 +20,7 @@ interface CarActionsProps {
   carId: number;
   isOwner: boolean;
   canEdit: boolean;
+  isContactPending?: boolean;
   onContact: () => void;
 }
 
@@ -27,6 +28,7 @@ export const CarActions = ({
   carId,
   isOwner,
   canEdit,
+  isContactPending,
   onContact,
 }: CarActionsProps) => {
   const router = useRouter();
@@ -83,11 +85,8 @@ export const CarActions = ({
       )}
 
       {!isOwner && (
-        <Button
-          size="lg"
-          onClick={onContact}
-        >
-          Contact seller
+        <Button size="lg" onClick={onContact} disabled={isContactPending}>
+          {isContactPending ? "Opening chat..." : "Contact seller"}
         </Button>
       )}
     </div>
