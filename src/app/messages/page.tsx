@@ -8,6 +8,7 @@ import { ConversationItem } from "@/entities/conversation/ui/conversation-item";
 
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { useConversationsQuery } from "@/entities/conversation/hooks/use-conversations-query";
+import { useSearchParams } from "next/navigation";
 
 import { socket } from "@/shared/api/socket";
 
@@ -16,11 +17,35 @@ export default function MessagesPage() {
 
   const queryClient = useQueryClient();
 
+  const searchParams = useSearchParams();
+
   const [selectedConversationId, setSelectedConversationId] = useState<
     number | null
   >(null);
 
   const { data: conversations, isLoading, error } = useConversationsQuery();
+
+  useEffect(() => {
+    const conversationParam = searchParams.get("conversation");
+
+    if (!conversationParam || !conversations) {
+      return;
+    }
+
+    const conversationId = Number(conversationParam);
+
+    if (Number.isNaN(conversationId)) {
+      return;
+    }
+
+    const conversationExists = conversations.some(
+      (conversation) => conversation.id === conversationId,
+    );
+
+    if (conversationExists) {
+      setSelectedConversationId(conversationId);
+    }
+  }, [searchParams, conversations]);
 
   useEffect(() => {
     if (!accessToken) {

@@ -1,3 +1,4 @@
+import { PublicProfile } from "@/entities/user/model/types/user.types";
 import { apiClient } from "@/shared/api/api-client";
 
 export interface UpdateProfileData {
@@ -25,6 +26,12 @@ export const userService = {
     return response.data;
   },
 
+  getPublicProfile: async (id: number): Promise<PublicProfile> => {
+    const response = await apiClient.get(`/users/${id}/public`);
+
+    return response.data;
+  },
+
   changeAvatar: async (file: File) => {
     const formData = new FormData();
 
@@ -42,10 +49,7 @@ export const userService = {
   },
 
   changePassword: async (data: ChangePasswordData) => {
-    const response = await apiClient.patch(
-      "/auth/change-password",
-      data,
-    );
+    const response = await apiClient.patch("/auth/change-password", data);
 
     return response.data;
   },

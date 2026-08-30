@@ -18,6 +18,7 @@ import { useCarOptionsQuery } from "@/entities/car/hooks/use-car-options-query";
 import { useBrandQuery } from "@/entities/brand/hooks/use-brands-query";
 
 import { CarForm } from "@/features/car-form/ui/car-form";
+import { BackButton } from "@/shared/ui/back-button/back-button";
 
 export const CreateCarForm = () => {
   const form = useForm<CreateCarSchema, undefined, CreateCarData>({
@@ -72,6 +73,7 @@ export const CreateCarForm = () => {
   return (
     <main className="flex justify-center py-10">
       <Card className="w-full max-w-4xl">
+        <BackButton label="Back to cars"/>
         <CardHeader>
           <CardTitle>Create Car</CardTitle>
         </CardHeader>

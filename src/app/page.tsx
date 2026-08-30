@@ -4,7 +4,6 @@ import { HeroBlock } from "@/widgets/hero/ui/hero";
 const HomePage = () => {
   return (
     <>
-      <Header />
 
       <HeroBlock/>
     </>

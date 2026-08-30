@@ -20,6 +20,8 @@ import { useCarOptionsQuery } from "@/entities/car/hooks/use-car-options-query";
 
 import { CarForm } from "@/features/car-form/ui/car-form";
 import { useAuthStore } from "@/features/auth/store/auth.store";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BackButton } from "@/shared/ui/back-button/back-button";
 
 interface EditCarFormProps {
   id: number;
@@ -55,9 +57,7 @@ export const EditCarForm = ({ id }: EditCarFormProps) => {
     name: "images",
   });
 
-  const canEdit =
-    user?.role === "ADMIN" ||
-    user?.id === car?.ownerId;
+  const canEdit = user?.role === "ADMIN" || user?.id === car?.ownerId;
 
   useEffect(() => {
     if (!car) return;
@@ -119,9 +119,7 @@ export const EditCarForm = ({ id }: EditCarFormProps) => {
 
     form.setValue(
       "images",
-      form
-        .getValues("images")
-        .filter((image) => image.publicId !== publicId),
+      form.getValues("images").filter((image) => image.publicId !== publicId),
     );
   };
 
@@ -131,7 +129,7 @@ export const EditCarForm = ({ id }: EditCarFormProps) => {
       data,
     });
 
-    router.push(`/cars/${id}`)
+    router.push(`/cars/${id}`);
   };
 
   if (!isInitialized || isLoading) {
@@ -147,17 +145,28 @@ export const EditCarForm = ({ id }: EditCarFormProps) => {
   }
 
   return (
-    <CarForm
-      form={form}
-      brands={brands}
-      options={options}
-      images={uploadedImages}
-      isUploading={uploadImageMutation.isPending}
-      isDeleting={deleteImageMutation.isPending}
-      isSubmitting={updateCarMutation.isPending}
-      onUploadImages={handleUploadImages}
-      onRemoveImage={handleRemoveImage}
-      onSubmit={handleSubmit}
-    />
+    <main className="flex justify-center py-10">
+      <Card className="w-full max-w-4xl">
+        <BackButton label="Back to car"/>
+        <CardHeader>
+          <CardTitle>Edit Car</CardTitle>
+        </CardHeader>
+
+        <CardContent>
+          <CarForm
+            form={form}
+            brands={brands}
+            options={options}
+            images={uploadedImages}
+            isUploading={uploadImageMutation.isPending}
+            isDeleting={deleteImageMutation.isPending}
+            isSubmitting={updateCarMutation.isPending}
+            onUploadImages={handleUploadImages}
+            onRemoveImage={handleRemoveImage}
+            onSubmit={handleSubmit}
+          />
+        </CardContent>
+      </Card>
+    </main>
   );
 };
