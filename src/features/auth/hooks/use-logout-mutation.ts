@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authService } from "../api/auth.service";
 import { useAuthStore } from "../store/auth.store";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export const useLogoutMutation = () => {
   const { logout } = useAuthStore();
@@ -13,15 +14,17 @@ export const useLogoutMutation = () => {
     mutationFn: authService.logout,
 
     onSuccess: () => {
+      toast.success("Logged out successfully");
+
       logout();
 
       queryClient.clear();
 
-      router.replace("/login")
+      router.replace("/login");
     },
 
     onError: () => {
-        console.log("Что то не так :/")
-    }
+      toast.error("Failed to logout");
+    },
   });
 };

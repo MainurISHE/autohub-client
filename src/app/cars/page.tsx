@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { CarsHeader } from "@/widgets/cars/cars-header";
 import { CarsGrid } from "@/widgets/cars/cars-grid";
@@ -9,7 +9,66 @@ import { CarsFilters } from "@/widgets/cars/cars-filters";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-export const CarsPage = () => {
+const filterKeys: (keyof CarFilters)[] = [
+  "brandId",
+  "status",
+  "fuelType",
+  "bodyType",
+  "driveType",
+  "transmission",
+  "color",
+  "minPrice",
+  "maxPrice",
+  "sortBy",
+  "order",
+];
+
+const getOptionalNumberParam = (
+  searchParams: URLSearchParams,
+  key: string,
+) => {
+  const value = searchParams.get(key);
+
+  return value ? Number(value) : undefined;
+};
+
+interface CarsHeaderControlsProps {
+  filters: CarFilters;
+  initialSearch: string;
+  onFiltersChange: (filters: CarFilters) => void;
+  onSearchChange: (value: string) => void;
+}
+
+const CarsHeaderControls = ({
+  filters,
+  initialSearch,
+  onFiltersChange,
+  onSearchChange,
+}: CarsHeaderControlsProps) => {
+  const [searchInput, setSearchInput] = useState(initialSearch);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (searchInput !== initialSearch) {
+        onSearchChange(searchInput);
+      }
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [initialSearch, onSearchChange, searchInput]);
+
+  return (
+    <CarsHeader search={searchInput} onSearchChange={setSearchInput}>
+      <CarsFilters
+        key={JSON.stringify(filters)}
+        filters={filters}
+        onFiltersChange={onFiltersChange}
+      />
+    </CarsHeader>
+  );
+};
+
+const CarsPageContent = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -18,74 +77,51 @@ export const CarsPage = () => {
 
   const page = Number(searchParams.get("page")) || 1;
 
-  const filters: CarFilters = {
-    brandId: searchParams.get("brandId")
-      ? Number(searchParams.get("brandId"))
-      : undefined,
+  const filters: CarFilters = useMemo(
+    () => ({
+      brandId: getOptionalNumberParam(searchParams, "brandId"),
+      status: searchParams.get("status") ?? undefined,
+      fuelType: searchParams.get("fuelType") ?? undefined,
+      bodyType: searchParams.get("bodyType") ?? undefined,
+      driveType: searchParams.get("driveType") ?? undefined,
+      transmission: searchParams.get("transmission") ?? undefined,
+      color: searchParams.get("color") ?? undefined,
+      minPrice: getOptionalNumberParam(searchParams, "minPrice"),
+      maxPrice: getOptionalNumberParam(searchParams, "maxPrice"),
+      sortBy: searchParams.get("sortBy") ?? undefined,
+      order: searchParams.get("order") ?? undefined,
+    }),
+    [searchParams],
+  );
 
-    status: searchParams.get("status") ?? undefined,
+  const updateUrl = useCallback(
+    (updates: Record<string, string | undefined>) => {
+      const params = new URLSearchParams(searchParams.toString());
 
-    fuelType: searchParams.get("fuelType") ?? undefined,
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === undefined || value === "") {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+      });
 
-    bodyType: searchParams.get("bodyType") ?? undefined,
+      const query = params.toString();
 
-    driveType: searchParams.get("driveType") ?? undefined,
+      router.push(query ? `${pathname}?${query}` : pathname);
+    },
+    [pathname, router, searchParams],
+  );
 
-    transmission: searchParams.get("transmission") ?? undefined,
-
-    color: searchParams.get("color") ?? undefined,
-
-    minPrice: searchParams.get("minPrice")
-      ? Number(searchParams.get("minPrice"))
-      : undefined,
-
-    maxPrice: searchParams.get("maxPrice")
-      ? Number(searchParams.get("maxPrice"))
-      : undefined,
-
-    sortBy: searchParams.get("sortBy") ?? undefined,
-
-    order: searchParams.get("order") ?? undefined,
-  };
-
-  const [searchInput, setSearchInput] = useState(search);
-
-  useEffect(() => {
-    setSearchInput(search);
-  }, [search]);
-
-  const updateUrl = (updates: Record<string, string | undefined>) => {
-    const params = new URLSearchParams(searchParams.toString());
-
-    Object.entries(updates).forEach(([key, value]) => {
-      if (value === undefined || value === "") {
-        params.delete(key);
-      } else {
-        params.set(key, value);
-      }
-    });
-
-    router.push(`${pathname}?${params.toString()}`);
-  };
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (searchInput === search) {
-        return;
-      }
-
+  const handleSearchChange = useCallback(
+    (value: string) => {
       updateUrl({
-        search: searchInput || undefined,
+        search: value || undefined,
         page: "1",
       });
-    }, 500);
-
-    return () => clearTimeout(timeout);
-  }, [searchInput]);
-
-  const handleSearchChange = (value: string) => {
-    setSearchInput(value);
-  };
+    },
+    [updateUrl],
+  );
 
   const handlePageChange = (newPage: number) => {
     updateUrl({
@@ -95,20 +131,6 @@ export const CarsPage = () => {
 
   const handleFiltersChange = (newFilters: CarFilters) => {
     const params = new URLSearchParams(searchParams.toString());
-
-    const filterKeys: (keyof CarFilters)[] = [
-      "brandId",
-      "status",
-      "fuelType",
-      "bodyType",
-      "driveType",
-      "transmission",
-      "color",
-      "minPrice",
-      "maxPrice",
-      "sortBy",
-      "order",
-    ];
 
     filterKeys.forEach((key) => {
       const value = newFilters[key];
@@ -122,11 +144,12 @@ export const CarsPage = () => {
 
     params.set("page", "1");
 
-    router.push(`${pathname}?${params.toString()}`);
+    const query = params.toString();
+
+    router.push(query ? `${pathname}?${query}` : pathname);
   };
 
   const handleResetFilters = () => {
-    setSearchInput("");
     updateUrl({
       search: undefined,
       page: "1",
@@ -146,9 +169,13 @@ export const CarsPage = () => {
 
   return (
     <>
-      <CarsHeader search={searchInput} onSearchChange={handleSearchChange}>
-        <CarsFilters filters={filters} onFiltersChange={handleFiltersChange} />
-      </CarsHeader>
+      <CarsHeaderControls
+        key={search}
+        filters={filters}
+        initialSearch={search}
+        onFiltersChange={handleFiltersChange}
+        onSearchChange={handleSearchChange}
+      />
 
       <CarsGrid
         search={search}
@@ -159,6 +186,14 @@ export const CarsPage = () => {
         onResetFilters={handleResetFilters}
       />
     </>
+  );
+};
+
+export const CarsPage = () => {
+  return (
+    <Suspense fallback={null}>
+      <CarsPageContent />
+    </Suspense>
   );
 };
 

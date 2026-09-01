@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState } from "react";
 import { Trash2, ImagePlus } from "lucide-react";
 
@@ -35,10 +36,12 @@ export const ImageUpload = ({
               key={image.publicId}
               className="group relative aspect-square overflow-hidden rounded-xl"
             >
-              <img
+              <Image
                 src={image.url}
                 alt="Car"
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                fill
+                sizes="(min-width: 768px) 25vw, 50vw"
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
               />
 
               <button

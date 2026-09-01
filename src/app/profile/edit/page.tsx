@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, User } from "lucide-react";
@@ -8,20 +9,20 @@ import { useProfileQuery } from "@/features/auth/hooks/use-profile-query";
 import { useUpdateProfileMutation } from "@/features/auth/hooks/use-update-profile-mutation";
 import { useChangeAvatarMutation } from "@/features/auth/hooks/use-change-avatar-mutation";
 import { useRemoveAvatarMutation } from "@/features/auth/hooks/use-remove-avatar-mutation";
-import { useAuthStore } from "@/features/auth/store/auth.store";
+import {
+  useAuthStore,
+  type User as AuthUser,
+} from "@/features/auth/store/auth.store";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export const EditProfilePage = () => {
-  const router = useRouter();
+interface EditProfileFormProps {
+  profile: AuthUser;
+  onBack: () => void;
+}
 
-  const { data, isLoading } = useProfileQuery();
-
-  const user = useAuthStore((state) => state.user);
-  const setUser = useAuthStore((state) => state.setUser);
-  const isInitialized = useAuthStore((state) => state.isInitialized);
-
+const EditProfileForm = ({ profile, onBack }: EditProfileFormProps) => {
   const updateProfileMutation = useUpdateProfileMutation();
   const changeAvatarMutation = useChangeAvatarMutation();
   const removeAvatarMutation = useRemoveAvatarMutation();
@@ -29,27 +30,10 @@ export const EditProfilePage = () => {
   const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
-  const [name, setName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-
-  useEffect(() => {
-    if (data) {
-      setUser(data);
-
-      setName(data.name ?? "");
-      setLastName(data.lastName ?? "");
-      setEmail(data.email ?? "");
-      setPhoneNumber(data.phoneNumber ?? "");
-    }
-  }, [data, setUser]);
-
-  useEffect(() => {
-    if (isInitialized && user === null) {
-      router.replace("/login");
-    }
-  }, [isInitialized, user, router]);
+  const [name, setName] = useState(profile.name ?? "");
+  const [lastName, setLastName] = useState(profile.lastName ?? "");
+  const [email, setEmail] = useState(profile.email ?? "");
+  const [phoneNumber, setPhoneNumber] = useState(profile.phoneNumber ?? "");
 
   useEffect(() => {
     return () => {
@@ -113,18 +97,6 @@ export const EditProfilePage = () => {
     });
   };
 
-  if (isLoading || !data) {
-    return (
-      <div className="flex min-h-[calc(100vh-80px)] items-center justify-center">
-        Loading...
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
-
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-8">
       <div className="overflow-hidden rounded-xl border bg-background">
@@ -134,7 +106,7 @@ export const EditProfilePage = () => {
             type="button"
             variant="ghost"
             size="icon"
-            onClick={() => router.back()}
+            onClick={onBack}
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -150,10 +122,13 @@ export const EditProfilePage = () => {
 
         {/* Avatar */}
         <div className="flex flex-col items-center border-b px-6 py-8">
-          {avatarPreview || user.avatarUrl ? (
-            <img
-              src={avatarPreview || user.avatarUrl!}
-              alt={`${user.name} ${user.lastName}`}
+          {avatarPreview || profile.avatarUrl ? (
+            <Image
+              src={avatarPreview || profile.avatarUrl!}
+              alt={`${profile.name} ${profile.lastName}`}
+              width={112}
+              height={112}
+              unoptimized={Boolean(avatarPreview)}
               className="h-28 w-28 rounded-full object-cover"
             />
           ) : (
@@ -178,7 +153,7 @@ export const EditProfilePage = () => {
               className="hidden"
             />
 
-            {selectedAvatar && (
+            {selectedAvatar ? (
               <Button
                 type="button"
                 onClick={handleAvatarUpload}
@@ -186,9 +161,7 @@ export const EditProfilePage = () => {
               >
                 {changeAvatarMutation.isPending ? "Uploading..." : "Upload"}
               </Button>
-            )}
-
-            {user.avatarUrl && !selectedAvatar && (
+            ) : profile.avatarUrl ? (
               <Button
                 type="button"
                 variant="outline"
@@ -197,7 +170,7 @@ export const EditProfilePage = () => {
               >
                 {removeAvatarMutation.isPending ? "Removing..." : "Remove"}
               </Button>
-            )}
+            ) : null}
           </div>
 
           {selectedAvatar && (
@@ -290,6 +263,46 @@ export const EditProfilePage = () => {
         </form>
       </div>
     </main>
+  );
+};
+
+export const EditProfilePage = () => {
+  const router = useRouter();
+
+  const { data, isLoading } = useProfileQuery();
+
+  const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
+
+  useEffect(() => {
+    if (data) {
+      setUser(data);
+    }
+  }, [data, setUser]);
+
+  useEffect(() => {
+    if (isInitialized && user === null) {
+      router.replace("/login");
+    }
+  }, [isInitialized, router, user]);
+
+  if (isLoading || !data) {
+    return (
+      <div className="flex min-h-[calc(100vh-80px)] items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
+
+  const profile = user ?? data;
+
+  return (
+    <EditProfileForm
+      key={profile.id}
+      profile={profile}
+      onBack={() => router.back()}
+    />
   );
 };
 

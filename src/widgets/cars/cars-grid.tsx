@@ -1,7 +1,6 @@
 import { useCarsQuery } from "@/entities/car/hooks/use-cars-query";
 import { CarCard } from "@/entities/car/ui/car-card";
 import { Container } from "@/shared/ui/container";
-import Link from "next/link";
 import { CarsPagination } from "./cars-pagination";
 import { CarFilters } from "@/entities/car/model/types/car-filters.types";
 

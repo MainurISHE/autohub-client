@@ -13,10 +13,9 @@ import {
 
 import { FormSelect } from "@/shared/ui/form-select/form-select";
 import { ImageUpload } from "@/shared/ui/image-upload";
-import { BackButton } from "@/shared/ui/back-button/back-button";
 
 interface CarFormProps {
-  form: UseFormReturn<CreateCarSchema, undefined, CreateCarData>
+  form: UseFormReturn<CreateCarSchema, undefined, CreateCarData>;
 
   brands: {
     id: number;

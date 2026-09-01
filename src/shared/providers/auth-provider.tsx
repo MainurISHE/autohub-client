@@ -6,31 +6,27 @@ import { useAuthStore } from "@/features/auth/store/auth.store";
 import { userService } from "@/features/auth/api/user.service";
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
-  const { setAccessToken, setUser, setInitialized } = useAuthStore();
+  const { logout, setAccessToken, setUser, setInitialized } = useAuthStore();
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const { accessToken } = await authService.refresh();
-        console.log("1. После refresh:", accessToken);
 
         setAccessToken(accessToken);
-        console.log("2. В сторе:", useAuthStore.getState().accessToken);
 
         const user = await userService.getProfile();
 
         setUser(user);
-
-      } catch (error) {
-        console.log("Пользователь не авторизован");
-
+      } catch {
+        logout();
       } finally {
-        setInitialized(true)
+        setInitialized(true);
       }
     };
 
     checkAuth();
-  }, [setAccessToken, setUser]);
+  }, [logout, setAccessToken, setInitialized, setUser]);
 
   return <>{children}</>;
 };

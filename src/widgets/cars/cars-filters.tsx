@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CarSort } from "@/entities/car/model/types/car-sort.types";
 import {
   Select,
   SelectContent,
@@ -42,9 +41,15 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
 
   const [draftFilters, setDraftFilters] = useState<CarFilters>(filters);
 
-  useEffect(() => {
-    setDraftFilters(filters);
-  }, [filters]);
+  const updateDraftFilter = <Key extends keyof CarFilters>(
+    key: Key,
+    value: CarFilters[Key] | null,
+  ) => {
+    setDraftFilters((currentFilters) => ({
+      ...currentFilters,
+      [key]: value === "" || value === null ? undefined : value,
+    }));
+  };
 
   const handleApply = () => {
     onFiltersChange(draftFilters);
@@ -96,10 +101,7 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
             <Select
               value={draftFilters.brandId?.toString() ?? ""}
               onValueChange={(value) => {
-                setDraftFilters({
-                  ...draftFilters,
-                  brandId: value ? Number(value) : undefined,
-                });
+                updateDraftFilter("brandId", value ? Number(value) : undefined);
               }}
             >
               <SelectTrigger className="w-full">
@@ -130,10 +132,7 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
               value={draftFilters.fuelType}
               options={options?.fuelTypes ?? []}
               onChange={(value) => {
-                setDraftFilters({
-                  ...draftFilters,
-                  fuelType: value ?? undefined,
-                });
+                updateDraftFilter("fuelType", value);
               }}
             />
           </div>
@@ -147,10 +146,7 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
               value={draftFilters.transmission}
               options={options?.transmissions ?? []}
               onChange={(value) => {
-                setDraftFilters({
-                  ...draftFilters,
-                  transmission: value ?? undefined,
-                });
+                updateDraftFilter("transmission", value);
               }}
             />
           </div>
@@ -164,10 +160,7 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
               value={draftFilters.bodyType}
               options={options?.bodyTypes ?? []}
               onChange={(value) => {
-                setDraftFilters({
-                  ...draftFilters,
-                  bodyType: value ?? undefined,
-                });
+                updateDraftFilter("bodyType", value);
               }}
             />
           </div>
@@ -181,10 +174,7 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
               value={draftFilters.driveType}
               options={options?.driveTypes ?? []}
               onChange={(value) => {
-                setDraftFilters({
-                  ...draftFilters,
-                  driveType: value ?? undefined,
-                });
+                updateDraftFilter("driveType", value);
               }}
             />
           </div>
@@ -198,10 +188,7 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
               value={draftFilters.color}
               options={options?.colors ?? []}
               onChange={(value) => {
-                setDraftFilters({
-                  ...draftFilters,
-                  color: value ?? undefined,
-                });
+                updateDraftFilter("color", value);
               }}
             />
           </div>
@@ -215,10 +202,7 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
               value={draftFilters.status}
               options={options?.statuses ?? []}
               onChange={(value) => {
-                setDraftFilters({
-                  ...draftFilters,
-                  status: value ?? undefined,
-                });
+                updateDraftFilter("status", value);
               }}
             />
           </div>
@@ -237,11 +221,11 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
 
                 const [sortBy, order] = value.split("-");
 
-                setDraftFilters({
-                  ...draftFilters,
+                setDraftFilters((currentFilters) => ({
+                  ...currentFilters,
                   sortBy,
                   order,
-                });
+                }));
               }}
             >
               <SelectTrigger className="w-full">
@@ -280,12 +264,10 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
                 placeholder="Min"
                 value={draftFilters.minPrice ?? ""}
                 onChange={(event) => {
-                  setDraftFilters({
-                    ...draftFilters,
-                    minPrice: event.target.value
-                      ? Number(event.target.value)
-                      : undefined,
-                  });
+                  updateDraftFilter(
+                    "minPrice",
+                    event.target.value ? Number(event.target.value) : undefined,
+                  );
                 }}
               />
 
@@ -294,12 +276,10 @@ export const CarsFilters = ({ filters, onFiltersChange }: CarsFiltersProps) => {
                 placeholder="Max"
                 value={draftFilters.maxPrice ?? ""}
                 onChange={(event) => {
-                  setDraftFilters({
-                    ...draftFilters,
-                    maxPrice: event.target.value
-                      ? Number(event.target.value)
-                      : undefined,
-                  });
+                  updateDraftFilter(
+                    "maxPrice",
+                    event.target.value ? Number(event.target.value) : undefined,
+                  );
                 }}
               />
             </div>

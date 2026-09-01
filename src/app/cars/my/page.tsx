@@ -70,7 +70,7 @@ export default function MyCarsPage() {
         {data?.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <h2 className="text-xl font-semibold">
-              You don't have any cars yet
+              You do not have any cars yet
             </h2>
 
             <p className="mt-2 text-muted-foreground">

@@ -1,8 +1,7 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { SellerDialog } from "@/entities/user/ui/seller-dialog";
 import { CarActions } from "@/entities/car/ui/car-actions";
 import { useParams, useRouter } from "next/navigation";
 import { useCarQuery } from "@/entities/car/hooks/use-car-query";
@@ -16,6 +15,7 @@ import {
   Palette,
   Cog,
   User,
+  type LucideIcon,
 } from "lucide-react";
 import { CarGallery } from "@/entities/car/ui/car-gallery";
 import { useAuthStore } from "@/features/auth/store/auth.store";
@@ -34,7 +34,6 @@ export default function CarPage() {
   const { user } = useAuthStore();
 
   const router = useRouter();
-  const [isSellerDialogOpen, setIsSellerDialogOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -80,6 +79,53 @@ export default function CarPage() {
 
   const isOwner = user?.id === car.ownerId;
 
+  const specs: {
+    icon: LucideIcon;
+    label: string;
+    value: string | number;
+  }[] = [
+    {
+      icon: Calendar,
+      label: "Year",
+      value: car.year,
+    },
+    {
+      icon: Gauge,
+      label: "Mileage",
+      value: `${car.mileage.toLocaleString()} km`,
+    },
+    {
+      icon: Fuel,
+      label: "Fuel",
+      value: car.fuelType,
+    },
+    {
+      icon: Settings2,
+      label: "Transmission",
+      value: car.transmission,
+    },
+    {
+      icon: CarFront,
+      label: "Drive",
+      value: car.driveType,
+    },
+    {
+      icon: CarFront,
+      label: "Body",
+      value: car.bodyType,
+    },
+    {
+      icon: Palette,
+      label: "Color",
+      value: car.color,
+    },
+    {
+      icon: Cog,
+      label: "Engine",
+      value: `${car.engineVolume} L`,
+    },
+  ];
+
   const handleContact = async () => {
     if (!user) {
       router.push(`/login?redirect=/cars/${car.id}`);
@@ -96,8 +142,8 @@ export default function CarPage() {
       );
 
       router.push(`/messages?conversation=${conversation.id}`);
-    } catch (error) {
-      console.error("Failed to create conversation:", error);
+    } catch {
+      // The mutation exposes its pending/error state to the UI.
     }
   };
 
@@ -148,68 +194,17 @@ export default function CarPage() {
                   isContactPending={createConversationMutation.isPending}
                 />
               </div>
-
-              <SellerDialog
-                seller={car.owner}
-                open={isSellerDialogOpen}
-                onOpenChange={setIsSellerDialogOpen}
-                onMessage={() => {
-                  console.log("Message seller:", car.owner.id);
-                }}
-              />
             </div>
 
             {/* Specs */}
             <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-              <div className="rounded-xl border p-4">
-                <Calendar className="mb-3 h-5 w-5 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Year</p>
-                <p className="mt-1 font-semibold">{car.year}</p>
-              </div>
-
-              <div className="rounded-xl border p-4">
-                <Gauge className="mb-3 h-5 w-5 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Mileage</p>
-                <p className="mt-1 font-semibold">
-                  {car.mileage.toLocaleString()} km
-                </p>
-              </div>
-
-              <div className="rounded-xl border p-4">
-                <Fuel className="mb-3 h-5 w-5 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Fuel</p>
-                <p className="mt-1 font-semibold">{car.fuelType}</p>
-              </div>
-
-              <div className="rounded-xl border p-4">
-                <Settings2 className="mb-3 h-5 w-5 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Transmission</p>
-                <p className="mt-1 font-semibold">{car.transmission}</p>
-              </div>
-
-              <div className="rounded-xl border p-4">
-                <CarFront className="mb-3 h-5 w-5 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Drive</p>
-                <p className="mt-1 font-semibold">{car.driveType}</p>
-              </div>
-
-              <div className="rounded-xl border p-4">
-                <CarFront className="mb-3 h-5 w-5 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Body</p>
-                <p className="mt-1 font-semibold">{car.bodyType}</p>
-              </div>
-
-              <div className="rounded-xl border p-4">
-                <Palette className="mb-3 h-5 w-5 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Color</p>
-                <p className="mt-1 font-semibold">{car.color}</p>
-              </div>
-
-              <div className="rounded-xl border p-4">
-                <Cog className="mb-3 h-5 w-5 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Engine</p>
-                <p className="mt-1 font-semibold">{car.engineVolume} L</p>
-              </div>
+              {specs.map(({ icon: Icon, label, value }) => (
+                <div key={label} className="rounded-xl border p-4">
+                  <Icon className="mb-3 h-5 w-5 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">{label}</p>
+                  <p className="mt-1 font-semibold">{value}</p>
+                </div>
+              ))}
             </div>
 
             {/* Seller */}
@@ -221,9 +216,11 @@ export default function CarPage() {
                 className="mt-4 flex items-center gap-3 rounded-xl border p-4 transition-colors hover:bg-muted"
               >
                 {car.owner.avatarUrl ? (
-                  <img
+                  <Image
                     src={car.owner.avatarUrl}
                     alt={`${car.owner.name} ${car.owner.lastName}`}
+                    width={48}
+                    height={48}
                     className="h-12 w-12 rounded-full object-cover"
                   />
                 ) : (

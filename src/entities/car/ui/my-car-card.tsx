@@ -61,7 +61,12 @@ export const MyCarCard = ({ car }: MyCarCardProps) => {
       </div>
 
       <div className="flex justify-center p-4">
-        <CarActions carId={car.id} />
+        <CarActions
+          carId={car.id}
+          isOwner
+          canEdit
+          onContact={() => undefined}
+        />
       </div>
     </article>
   );

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -36,9 +37,11 @@ export const SellerDialog = ({
         <div className="flex items-center gap-4">
           <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
             {seller.avatarUrl ? (
-              <img
+              <Image
                 src={seller.avatarUrl}
                 alt={`${seller.name} ${seller.lastName}`}
+                width={64}
+                height={64}
                 className="h-full w-full object-cover"
               />
             ) : (

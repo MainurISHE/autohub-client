@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { User } from "lucide-react";
 
 interface ConversationItemProps {
@@ -31,9 +32,11 @@ export const ConversationItem = ({
     >
       {/* Avatar */}
       {avatarUrl ? (
-        <img
+        <Image
           src={avatarUrl}
           alt={name}
+          width={48}
+          height={48}
           className="h-12 w-12 shrink-0 rounded-full object-cover"
         />
       ) : (

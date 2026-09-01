@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "lucide-react";
@@ -60,9 +61,11 @@ export const ProfilePage = () => {
         {/* Avatar + name */}
         <div className="flex flex-col items-center border-b px-6 py-8">
           {user.avatarUrl ? (
-            <img
+            <Image
               src={user.avatarUrl}
               alt={`${user.name} ${user.lastName}`}
+              width={112}
+              height={112}
               className="h-28 w-28 rounded-full object-cover"
             />
           ) : (

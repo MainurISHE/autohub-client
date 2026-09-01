@@ -7,8 +7,8 @@ import {
   ChangePasswordData,
   userService,
 } from "@/features/auth/api/user.service";
-
 import { useAuthStore } from "@/features/auth/store/auth.store";
+import { toast } from "sonner";
 
 export const useChangePasswordMutation = () => {
   const logout = useAuthStore((state) => state.logout);
@@ -21,11 +21,17 @@ export const useChangePasswordMutation = () => {
       userService.changePassword(data),
 
     onSuccess: () => {
+      toast.success("Password changed successfully");
+
       logout();
 
       queryClient.clear();
 
       router.replace("/login");
+    },
+
+    onError: () => {
+      toast.error("Failed to change password");
     },
   });
 };

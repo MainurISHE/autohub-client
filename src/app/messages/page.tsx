@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { MessageChat } from "@/entities/message/ui/message-chat";
 import { ConversationItem } from "@/entities/conversation/ui/conversation-item";
+import { Conversation } from "@/entities/conversation/model/types/conversation.types";
+import { Message } from "@/entities/message/model/types/message.types";
 
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { useConversationsQuery } from "@/entities/conversation/hooks/use-conversations-query";
@@ -12,40 +14,41 @@ import { useSearchParams } from "next/navigation";
 
 import { socket } from "@/shared/api/socket";
 
-export default function MessagesPage() {
+function MessagesPageContent() {
   const { user, accessToken } = useAuthStore();
 
   const queryClient = useQueryClient();
 
   const searchParams = useSearchParams();
 
-  const [selectedConversationId, setSelectedConversationId] = useState<
+  const [selectedConversationOverride, setSelectedConversationOverride] = useState<
     number | null
   >(null);
 
   const { data: conversations, isLoading, error } = useConversationsQuery();
 
-  useEffect(() => {
+  const conversationIdFromUrl = useMemo(() => {
     const conversationParam = searchParams.get("conversation");
 
-    if (!conversationParam || !conversations) {
-      return;
+    if (!conversationParam) {
+      return null;
     }
 
     const conversationId = Number(conversationParam);
 
-    if (Number.isNaN(conversationId)) {
-      return;
-    }
+    return Number.isNaN(conversationId) ? null : conversationId;
+  }, [searchParams]);
 
-    const conversationExists = conversations.some(
-      (conversation) => conversation.id === conversationId,
-    );
+  const selectedConversationId =
+    selectedConversationOverride ??
+    (conversationIdFromUrl &&
+    conversations?.some((conversation) => conversation.id === conversationIdFromUrl)
+      ? conversationIdFromUrl
+      : null);
 
-    if (conversationExists) {
-      setSelectedConversationId(conversationId);
-    }
-  }, [searchParams, conversations]);
+  const selectConversation = (conversationId: number) => {
+    setSelectedConversationOverride(conversationId);
+  };
 
   useEffect(() => {
     if (!accessToken) {
@@ -66,25 +69,19 @@ export default function MessagesPage() {
   }, [accessToken]);
 
   useEffect(() => {
-    const handleMessage = (message: {
-      id: number;
-      conversationId: number;
-      content: string;
-      senderId: number;
-      createdAt: string;
-    }) => {
+    const handleMessage = (message: Message) => {
       queryClient.setQueriesData(
         {
           predicate: (query) => {
             return query.queryKey[0] === "conversations";
           },
         },
-        (oldData: any) => {
+        (oldData: Conversation[] | undefined) => {
           if (!oldData) {
             return oldData;
           }
 
-          const updatedConversations = oldData.map((conversation: any) => {
+          const updatedConversations = oldData.map((conversation) => {
             if (conversation.id !== message.conversationId) {
               return conversation;
             }
@@ -104,7 +101,7 @@ export default function MessagesPage() {
           });
 
           return [...updatedConversations].sort(
-            (a: any, b: any) =>
+            (a, b) =>
               new Date(b.messages[0]?.createdAt ?? 0).getTime() -
               new Date(a.messages[0]?.createdAt ?? 0).getTime(),
           );
@@ -173,7 +170,7 @@ export default function MessagesPage() {
                 }
                 unreadCount={conversation.unreadCount}
                 isSelected={selectedConversationId === conversation.id}
-                onClick={() => setSelectedConversationId(conversation.id)}
+                onClick={() => selectConversation(conversation.id)}
               />
             );
           })}
@@ -193,5 +190,13 @@ export default function MessagesPage() {
         )}
       </section>
     </main>
+  );
+}
+
+export default function MessagesPage() {
+  return (
+    <Suspense fallback={null}>
+      <MessagesPageContent />
+    </Suspense>
   );
 }

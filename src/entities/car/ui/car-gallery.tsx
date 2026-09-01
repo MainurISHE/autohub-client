@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 
 import {
@@ -41,10 +42,12 @@ export const CarGallery = ({ images }: CarGalleryProps) => {
             />
           }
         >
-          <img
-            src={selectedImage}
+          <Image
+            src={selectedImage ?? images[0].url}
             alt="Car"
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+            fill
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
           />
 
           <div className="absolute right-4 bottom-4 rounded-full bg-background/80 p-2 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
@@ -56,9 +59,11 @@ export const CarGallery = ({ images }: CarGalleryProps) => {
           <DialogTitle className="sr-only">Car image</DialogTitle>
 
           <div className="flex items-center justify-center">
-            <img
-              src={selectedImage}
+            <Image
+              src={selectedImage ?? images[0].url}
               alt="Car"
+              width={1200}
+              height={800}
               className="max-h-[90vh] max-w-[95vw] rounded-xl object-contain"
             />
           </div>
@@ -75,16 +80,18 @@ export const CarGallery = ({ images }: CarGalleryProps) => {
               key={image.publicId}
               type="button"
               onClick={() => setSelectedImage(image.url)}
-              className={`h-20 w-24 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-200 ${
+              className={`relative h-20 w-24 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-200 ${
                 isSelected
                   ? "border-primary"
                   : "border-transparent opacity-70 hover:opacity-100"
               }`}
             >
-              <img
+              <Image
                 src={image.url}
                 alt="Car thumbnail"
-                className="h-full w-full object-cover"
+                fill
+                sizes="96px"
+                className="object-cover"
               />
             </button>
           );

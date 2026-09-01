@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { MoreVertical, User } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -11,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
 import { messageService } from "@/entities/message/api/message.service";
+import { Message } from "@/entities/message/model/types/message.types";
 
 import { socket } from "@/shared/api/socket";
 
@@ -23,13 +25,9 @@ interface MessageChatProps {
   };
 }
 
-interface RealtimeMessage {
-  id: number;
-  conversationId: number;
-  content: string;
-  senderId: number;
-  createdAt: string;
-}
+type RealtimeMessage = Omit<Message, "updatedAt"> & {
+  updatedAt?: string;
+};
 
 const isSameDay = (date1: Date, date2: Date) => {
   return (
@@ -61,7 +59,7 @@ const getDateLabel = (date: Date) => {
 };
 
 export const MessageChat = ({ conversationId, user }: MessageChatProps) => {
-  const { user: currentUser, accessToken } = useAuthStore();
+  const currentUser = useAuthStore((state) => state.user);
 
   const queryClient = useQueryClient();
 
@@ -72,42 +70,17 @@ export const MessageChat = ({ conversationId, user }: MessageChatProps) => {
   const { data: messages, isLoading, error } = useMessagesQuery(conversationId);
 
   useEffect(() => {
-    if (!accessToken) {
-      return;
-    }
-
-    socket.auth = {
-      token: accessToken,
-    };
-
-    socket.connect();
-
-    const handleConnect = () => {
-      console.log("WebSocket connected:", socket.id);
-    };
-
-    const handleDisconnect = () => {
-      console.log("WebSocket disconnected");
-    };
-
-    socket.on("connect", handleConnect);
-    socket.on("disconnect", handleDisconnect);
-
-    return () => {
-      socket.off("connect", handleConnect);
-      socket.off("disconnect", handleDisconnect);
-
-      socket.disconnect();
-    };
-  }, [accessToken]);
-
-  useEffect(() => {
     const handleMessage = (message: RealtimeMessage) => {
       if (message.conversationId !== conversationId) {
         return;
       }
 
-      queryClient.setQueriesData<RealtimeMessage[]>(
+      const nextMessage: Message = {
+        ...message,
+        updatedAt: message.updatedAt ?? message.createdAt,
+      };
+
+      queryClient.setQueriesData<Message[]>(
         {
           predicate: (query) => {
             return (
@@ -120,14 +93,14 @@ export const MessageChat = ({ conversationId, user }: MessageChatProps) => {
           const currentMessages = oldMessages ?? [];
 
           const alreadyExists = currentMessages.some(
-            (item) => item.id === message.id,
+            (item) => item.id === nextMessage.id,
           );
 
           if (alreadyExists) {
             return currentMessages;
           }
 
-          return [...currentMessages, message];
+          return [...currentMessages, nextMessage];
         },
       );
     };
@@ -157,8 +130,8 @@ export const MessageChat = ({ conversationId, user }: MessageChatProps) => {
         await queryClient.invalidateQueries({
           queryKey: ["conversations"],
         });
-      } catch (error) {
-        console.error("Failed to mark messages as read:", error);
+      } catch {
+        // Read receipts are non-critical and will be retried on the next visit.
       }
     };
 
@@ -202,9 +175,11 @@ export const MessageChat = ({ conversationId, user }: MessageChatProps) => {
       <header className="flex shrink-0 items-center justify-between border-b px-5 py-3">
         <div className="flex min-w-0 items-center gap-3">
           {user.avatarUrl ? (
-            <img
+            <Image
               src={user.avatarUrl}
               alt={`${user.name} ${user.lastName}`}
+              width={44}
+              height={44}
               className="h-11 w-11 shrink-0 rounded-full object-cover"
             />
           ) : (

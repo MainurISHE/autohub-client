@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,14 +11,14 @@ import {
   loginSchema,
 } from "@/features/auth/model/schemas/login.schema";
 import { useLoginMutation } from "@/features/auth/hooks/use-login-mutation";
+import { useSearchParams } from "next/navigation";
 
-import { Mail } from "lucide-react";
-
-const LoginPage = () => {
+const LoginPageContent = () => {
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
   });
-  const loginMutation = useLoginMutation();
+  const searchParams = useSearchParams();
+  const loginMutation = useLoginMutation(searchParams.get("redirect"));
 
   return (
     <main className="flex min-h-screen items-center justify-center">
@@ -74,6 +75,14 @@ const LoginPage = () => {
         </CardContent>
       </Card>
     </main>
+  );
+};
+
+const LoginPage = () => {
+  return (
+    <Suspense fallback={null}>
+      <LoginPageContent />
+    </Suspense>
   );
 };
 

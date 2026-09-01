@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,13 +11,15 @@ import {
   RegisterSchema,
 } from "@/features/auth/model/schemas/register.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 
-export const RegisterPage = () => {
+const RegisterPageContent = () => {
   const form = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
   });
-  const registerMutation = useRegisterMutation();
+  const searchParams = useSearchParams();
+  const registerMutation = useRegisterMutation(searchParams.get("returnUrl"));
 
   return (
     <main className="flex min-h-screen items-center justify-center">
@@ -122,6 +125,14 @@ export const RegisterPage = () => {
         </CardContent>
       </Card>
     </main>
+  );
+};
+
+export const RegisterPage = () => {
+  return (
+    <Suspense fallback={null}>
+      <RegisterPageContent />
+    </Suspense>
   );
 };
 
