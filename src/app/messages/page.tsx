@@ -12,6 +12,8 @@ import { useAuthStore } from "@/features/auth/store/auth.store";
 import { useConversationsQuery } from "@/entities/conversation/hooks/use-conversations-query";
 import { useSearchParams } from "next/navigation";
 
+import { MessagesSkeleton } from "@/entities/message/ui/messages-skeleton";
+
 import { socket } from "@/shared/api/socket";
 
 function MessagesPageContent() {
@@ -21,9 +23,8 @@ function MessagesPageContent() {
 
   const searchParams = useSearchParams();
 
-  const [selectedConversationOverride, setSelectedConversationOverride] = useState<
-    number | null
-  >(null);
+  const [selectedConversationOverride, setSelectedConversationOverride] =
+    useState<number | null>(null);
 
   const { data: conversations, isLoading, error } = useConversationsQuery();
 
@@ -42,7 +43,9 @@ function MessagesPageContent() {
   const selectedConversationId =
     selectedConversationOverride ??
     (conversationIdFromUrl &&
-    conversations?.some((conversation) => conversation.id === conversationIdFromUrl)
+    conversations?.some(
+      (conversation) => conversation.id === conversationIdFromUrl,
+    )
       ? conversationIdFromUrl
       : null);
 
@@ -127,7 +130,7 @@ function MessagesPageContent() {
     : null;
 
   if (isLoading) {
-    return <div>Loading conversations...</div>;
+    return <MessagesSkeleton />;
   }
 
   if (error) {
@@ -146,34 +149,44 @@ function MessagesPageContent() {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {conversations?.map((conversation) => {
-            const otherUser =
-              user?.id === conversation.user1Id
-                ? conversation.user2
-                : conversation.user1;
+          {conversations?.length === 0 ? (
+            <div className="flex h-full flex-col items-center justify-center px-6 text-center">
+              <h2 className="text-lg font-semibold">No conversations yet</h2>
 
-            return (
-              <ConversationItem
-                key={conversation.id}
-                name={`${otherUser.name} ${otherUser.lastName}`}
-                avatarUrl={otherUser.avatarUrl}
-                lastMessage={conversation.messages[0]?.content}
-                lastMessageTime={
-                  conversation.messages[0]
-                    ? new Date(
-                        conversation.messages[0].createdAt,
-                      ).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : undefined
-                }
-                unreadCount={conversation.unreadCount}
-                isSelected={selectedConversationId === conversation.id}
-                onClick={() => selectConversation(conversation.id)}
-              />
-            );
-          })}
+              <p className="mt-2 text-sm text-muted-foreground">
+                Start chatting with a seller to see your conversations here.
+              </p>
+            </div>
+          ) : (
+            conversations?.map((conversation) => {
+              const otherUser =
+                user?.id === conversation.user1Id
+                  ? conversation.user2
+                  : conversation.user1;
+
+              return (
+                <ConversationItem
+                  key={conversation.id}
+                  name={`${otherUser.name} ${otherUser.lastName}`}
+                  avatarUrl={otherUser.avatarUrl}
+                  lastMessage={conversation.messages[0]?.content}
+                  lastMessageTime={
+                    conversation.messages[0]
+                      ? new Date(
+                          conversation.messages[0].createdAt,
+                        ).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : undefined
+                  }
+                  unreadCount={conversation.unreadCount}
+                  isSelected={selectedConversationId === conversation.id}
+                  onClick={() => selectConversation(conversation.id)}
+                />
+              );
+            })
+          )}
         </div>
       </aside>
 

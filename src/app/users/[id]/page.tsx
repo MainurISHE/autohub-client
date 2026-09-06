@@ -63,7 +63,7 @@ export default function PublicProfilePage() {
 
           <p className="mt-2 text-sm text-muted-foreground">
             Member since{" "}
-            {new Date(data.createdAt).toLocaleDateString([], {
+            {new Date(data.createdAt).toLocaleDateString("en-US", {
               month: "long",
               year: "numeric",
             })}

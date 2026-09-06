@@ -11,6 +11,8 @@ export const useUpdateCarMutation = () => {
       carService.update(id, data),
 
     onSuccess: (_, variables) => {
+      toast.success("Car updated successfully");
+
       queryClient.invalidateQueries({
         queryKey: ["cars"],
       });
@@ -22,12 +24,10 @@ export const useUpdateCarMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ["car", variables.id],
       });
-
-      toast.success("Car updated successfully");
     },
 
     onError: () => {
-      toast.error("Failed to update car")
-    }
+      toast.error("Failed to update car");
+    },
   });
 };

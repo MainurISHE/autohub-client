@@ -9,6 +9,8 @@ export const useDeleteCarMutation = () => {
     mutationFn: carService.remove,
 
     onSuccess: (_, id) => {
+      toast.success("Car deleted successfully");
+
       queryClient.invalidateQueries({
         queryKey: ["cars"],
       });
@@ -20,8 +22,6 @@ export const useDeleteCarMutation = () => {
       queryClient.removeQueries({
         queryKey: ["car", id],
       });
-
-      toast.success("Car deleted successfully");
     },
 
     onError: () => {
