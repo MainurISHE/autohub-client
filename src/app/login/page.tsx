@@ -21,8 +21,8 @@ const LoginPageContent = () => {
   const loginMutation = useLoginMutation(searchParams.get("redirect"));
 
   return (
-    <main className="flex min-h-screen items-center justify-center">
-      <Card className="w-full max-w-md">
+    <main className="flex flex-1 items-center justify-center overflow-hidden p-4">
+      <Card className="w-full max-w-md shrink-0">
         <CardHeader>
           <CardTitle>Login</CardTitle>
         </CardHeader>

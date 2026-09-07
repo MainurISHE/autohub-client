@@ -38,8 +38,14 @@ export const CarActions = ({
     router.push(`/cars/${carId}/edit`);
   };
 
-  const handleDelete = () => {
-    deleteCarMutation.mutate(carId);
+  const handleDelete = async () => {
+    try {
+      await deleteCarMutation.mutateAsync(carId);
+
+      router.replace("/cars");
+    } catch {
+      
+    }
   };
 
   return (

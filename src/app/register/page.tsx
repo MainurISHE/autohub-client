@@ -14,6 +14,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 
+import { AxiosError } from "axios";
+import { toast } from "sonner";
+
 const RegisterPageContent = () => {
   const form = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
@@ -21,16 +24,55 @@ const RegisterPageContent = () => {
   const searchParams = useSearchParams();
   const registerMutation = useRegisterMutation(searchParams.get("returnUrl"));
 
+  const handleRegister = async (data: RegisterSchema) => {
+    try {
+      await registerMutation.mutateAsync(data);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        const message = error.response?.data?.message;
+
+        if (
+          typeof message === "string" &&
+          message.toLowerCase().includes("email")
+        ) {
+          form.setError("email", {
+            type: "server",
+            message,
+          });
+
+          return;
+        }
+
+        if (
+          typeof message === "string" &&
+          message.toLowerCase().includes("phone")
+        ) {
+          form.setError("phoneNumber", {
+            type: "server",
+            message,
+          });
+
+          return;
+        }
+
+        if (typeof message === "string") {
+          toast.error(message);
+          return;
+        }
+      }
+
+      toast.error("Failed to create account");
+    }
+  };
+
   return (
-    <main className="flex min-h-screen items-center justify-center">
+    <main className="flex flex-1 items-center justify-center overflow-hidden p-4">
       <Card className="w-full max-w-md">
         <CardHeader>Registration</CardHeader>
 
         <CardContent>
           <form
-            onSubmit={form.handleSubmit((data) => {
-              registerMutation.mutate(data);
-            })}
+            onSubmit={form.handleSubmit(handleRegister)}
             className="space-y-4"
           >
             <div className="space-y-2">
@@ -44,7 +86,7 @@ const RegisterPageContent = () => {
               />
 
               {form.formState.errors.name && (
-                <p className="test-sm text-red-500">
+                <p className="text-sm text-red-500">
                   {form.formState.errors.name.message}
                 </p>
               )}

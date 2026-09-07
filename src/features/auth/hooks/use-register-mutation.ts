@@ -25,9 +25,5 @@ export const useRegisterMutation = (returnUrl?: string | null) => {
 
       router.replace(getSafeRedirect(returnUrl) ?? "/profile");
     },
-
-    onError: () => {
-      toast.error("Failed to create account");
-    },
   });
 };

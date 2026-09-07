@@ -31,15 +31,15 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="flex min-h-dvh flex-col">
         <ReactQueryProvider>
           <AuthProvider>
-            <Header/>
+            <Header />
 
             {children}
-            
+
             <Toaster />
           </AuthProvider>
         </ReactQueryProvider>
