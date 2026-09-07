@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { MoreVertical, User } from "lucide-react";
+import { ArrowLeft, MoreVertical, User } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { useMessagesQuery } from "@/entities/message/hooks/use-messages-query";
@@ -23,6 +23,7 @@ interface MessageChatProps {
     lastName: string;
     avatarUrl?: string | null;
   };
+  onBack: () => void;
 }
 
 type RealtimeMessage = Omit<Message, "updatedAt"> & {
@@ -58,7 +59,11 @@ const getDateLabel = (date: Date) => {
   });
 };
 
-export const MessageChat = ({ conversationId, user }: MessageChatProps) => {
+export const MessageChat = ({
+  conversationId,
+  user,
+  onBack,
+}: MessageChatProps) => {
   const currentUser = useAuthStore((state) => state.user);
 
   const queryClient = useQueryClient();
@@ -171,9 +176,17 @@ export const MessageChat = ({ conversationId, user }: MessageChatProps) => {
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-      {/* Chat header */}
-      <header className="flex shrink-0 items-center justify-between border-b px-5 py-3">
-        <div className="flex min-w-0 items-center gap-3">
+      <header className="flex shrink-0 items-center border-b px-3 py-3">
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="shrink-0 lg:hidden"
+            onClick={onBack}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+
           {user.avatarUrl ? (
             <Image
               src={user.avatarUrl}
@@ -203,14 +216,14 @@ export const MessageChat = ({ conversationId, user }: MessageChatProps) => {
 
         <button
           type="button"
-          className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-muted"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-muted"
         >
           <MoreVertical className="h-5 w-5 text-muted-foreground" />
         </button>
       </header>
 
-      {/* Messages */}
-      <div className="min-h-0 flex-1 overflow-y-auto p-6">
+
+      <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6">
         <div className="flex flex-col gap-3">
           {messages?.map((message, index) => {
             const isOwnMessage = message.senderId === currentUser?.id;
@@ -242,7 +255,7 @@ export const MessageChat = ({ conversationId, user }: MessageChatProps) => {
                   }`}
                 >
                   <div
-                    className={`max-w-[70%] rounded-2xl px-4 py-2 ${
+                    className={`max-w-[85%] sm:max-w-[75%] lg:max-w-[70%] rounded-2xl px-4 py-2 ${
                       isOwnMessage
                         ? "rounded-br-md bg-primary text-primary-foreground"
                         : "rounded-bl-md bg-muted"
@@ -274,8 +287,8 @@ export const MessageChat = ({ conversationId, user }: MessageChatProps) => {
         </div>
       </div>
 
-      {/* Message input */}
-      <div className="shrink-0 border-t p-4">
+
+      <div className="shrink-0 border-t p-3 sm:p-4">
         <div className="flex items-end gap-3">
           <Textarea
             value={content}

@@ -1,18 +1,23 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import {
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { MessageChat } from "@/entities/message/ui/message-chat";
 import { ConversationItem } from "@/entities/conversation/ui/conversation-item";
 import { Conversation } from "@/entities/conversation/model/types/conversation.types";
 import { Message } from "@/entities/message/model/types/message.types";
+import { MessagesSkeleton } from "@/entities/message/ui/messages-skeleton";
 
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { useConversationsQuery } from "@/entities/conversation/hooks/use-conversations-query";
-import { useSearchParams } from "next/navigation";
-
-import { MessagesSkeleton } from "@/entities/message/ui/messages-skeleton";
 
 import { socket } from "@/shared/api/socket";
 
@@ -20,11 +25,16 @@ function MessagesPageContent() {
   const { user, accessToken } = useAuthStore();
 
   const queryClient = useQueryClient();
-
+  const router = useRouter();
   const searchParams = useSearchParams();
 
   const [selectedConversationOverride, setSelectedConversationOverride] =
     useState<number | null>(null);
+
+  const [swipeOffset, setSwipeOffset] = useState(0);
+
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
 
   const { data: conversations, isLoading, error } = useConversationsQuery();
 
@@ -51,6 +61,58 @@ function MessagesPageContent() {
 
   const selectConversation = (conversationId: number) => {
     setSelectedConversationOverride(conversationId);
+  };
+
+  const handleBackToConversations = () => {
+    setSwipeOffset(0);
+    setSelectedConversationOverride(null);
+
+    router.replace("/messages");
+  };
+
+  const handleTouchStart = (event: React.TouchEvent<HTMLElement>) => {
+    const touch = event.touches[0];
+
+    if (touch.clientX > 30) {
+      return;
+    }
+
+    touchStartX.current = touch.clientX;
+    touchStartY.current = touch.clientY;
+  };
+
+  const handleTouchMove = (event: React.TouchEvent<HTMLElement>) => {
+    if (touchStartX.current === null || touchStartY.current === null) {
+      return;
+    }
+
+    const touch = event.touches[0];
+
+    const deltaX = touch.clientX - touchStartX.current;
+    const deltaY = touch.clientY - touchStartY.current;
+
+
+    if (Math.abs(deltaY) > Math.abs(deltaX)) {
+      return;
+    }
+
+
+    if (deltaX > 0) {
+      setSwipeOffset(deltaX);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    const SWIPE_THRESHOLD = 100;
+
+    if (swipeOffset > SWIPE_THRESHOLD) {
+      handleBackToConversations();
+    } else {
+      setSwipeOffset(0);
+    }
+
+    touchStartX.current = null;
+    touchStartY.current = null;
   };
 
   useEffect(() => {
@@ -138,8 +200,14 @@ function MessagesPageContent() {
   }
 
   return (
-    <main className="mx-auto flex h-[calc(100vh-80px)] w-full max-w-7xl overflow-hidden border">
-      <aside className="flex w-96 shrink-0 flex-col border-r bg-background">
+    <main className="relative mx-auto flex h-[calc(100dvh-72px)] w-full max-w-7xl min-h-0 overflow-hidden border">
+      <aside
+        className={`absolute inset-0 z-10 flex w-full flex-col border-r bg-background transition-transform duration-300 ease-in-out lg:static lg:z-auto lg:w-96 lg:shrink-0 ${
+          selectedConversationId
+            ? "-translate-x-full lg:translate-x-0"
+            : "translate-x-0"
+        }`}
+      >
         <div className="border-b px-5 py-4">
           <h1 className="text-xl font-bold">Messages</h1>
 
@@ -190,11 +258,26 @@ function MessagesPageContent() {
         </div>
       </aside>
 
-      <section className="flex min-w-0 flex-1 overflow-hidden">
+      <section
+        className={`absolute inset-0 z-20 flex min-h-0 min-w-0 flex-1 overflow-hidden bg-background lg:static lg:z-auto ${
+          selectedConversationId ? "translate-x-0" : "translate-x-full"
+        }`}
+        style={{
+          transform: `translateX(${swipeOffset}px)`,
+          transition:
+            swipeOffset > 0
+              ? "none"
+              : "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         {selectedConversationId && selectedOtherUser ? (
           <MessageChat
             conversationId={selectedConversationId}
             user={selectedOtherUser}
+            onBack={handleBackToConversations}
           />
         ) : (
           <div className="flex flex-1 items-center justify-center">
