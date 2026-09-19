@@ -45,6 +45,10 @@ const CarsHeaderControls = ({
   const [searchInput, setSearchInput] = useState(initialSearch);
 
   useEffect(() => {
+    setSearchInput(initialSearch);
+  }, [initialSearch]);
+
+  useEffect(() => {
     const timeout = setTimeout(() => {
       if (searchInput !== initialSearch) {
         onSearchChange(searchInput);
