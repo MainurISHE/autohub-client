@@ -23,10 +23,7 @@ const filterKeys: (keyof CarFilters)[] = [
   "order",
 ];
 
-const getOptionalNumberParam = (
-  searchParams: URLSearchParams,
-  key: string,
-) => {
+const getOptionalNumberParam = (searchParams: URLSearchParams, key: string) => {
   const value = searchParams.get(key);
 
   return value ? Number(value) : undefined;
@@ -108,7 +105,7 @@ const CarsPageContent = () => {
 
       const query = params.toString();
 
-      router.push(query ? `${pathname}?${query}` : pathname);
+      router.replace(query ? `${pathname}?${query}` : pathname);
     },
     [pathname, router, searchParams],
   );
@@ -146,7 +143,7 @@ const CarsPageContent = () => {
 
     const query = params.toString();
 
-    router.push(query ? `${pathname}?${query}` : pathname);
+    router.replace(query ? `${pathname}?${query}` : pathname);
   };
 
   const handleResetFilters = () => {
@@ -170,7 +167,6 @@ const CarsPageContent = () => {
   return (
     <>
       <CarsHeaderControls
-        key={search}
         filters={filters}
         initialSearch={search}
         onFiltersChange={handleFiltersChange}
