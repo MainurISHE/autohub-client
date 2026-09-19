@@ -70,7 +70,7 @@ export const MessageChat = ({
 
   const [content, setContent] = useState("");
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   const { data: messages, isLoading, error } = useMessagesQuery(conversationId);
 
@@ -118,9 +118,13 @@ export const MessageChat = ({
   }, [conversationId, queryClient]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({
-      behavior: "smooth",
-    });
+    const container = messagesContainerRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    container.scrollTop = container.scrollHeight;
   }, [messages]);
 
   useEffect(() => {
@@ -222,8 +226,10 @@ export const MessageChat = ({
         </button>
       </header>
 
-
-      <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6">
+      <div
+        ref={messagesContainerRef}
+        className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6"
+      >
         <div className="flex flex-col gap-3">
           {messages?.map((message, index) => {
             const isOwnMessage = message.senderId === currentUser?.id;
@@ -283,10 +289,9 @@ export const MessageChat = ({
             );
           })}
 
-          <div ref={messagesEndRef} />
+          <div/>
         </div>
       </div>
-
 
       <div className="shrink-0 border-t p-3 sm:p-4">
         <div className="flex items-end gap-3">

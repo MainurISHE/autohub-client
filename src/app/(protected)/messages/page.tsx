@@ -200,7 +200,7 @@ function MessagesPageContent() {
   }
 
   return (
-    <main className="relative mx-auto flex h-[calc(100dvh-72px)] w-full max-w-7xl min-h-0 overflow-hidden border">
+    <main className="relative mx-auto flex h-[calc(100dvh-72px)] min-h-0 w-full max-w-7xl overflow-hidden border">
       <aside
         className={`absolute inset-0 z-10 flex w-full flex-col border-r bg-background transition-transform duration-300 ease-in-out lg:static lg:z-auto lg:w-96 lg:shrink-0 ${
           selectedConversationId

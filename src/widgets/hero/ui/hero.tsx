@@ -1,7 +1,13 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/shared/ui/container";
+import Router from "next/router";
 
 export const HeroBlock = () => {
+  const router = useRouter();
+
   return (
     <section className="py-8">
       <Container>
@@ -30,11 +36,11 @@ export const HeroBlock = () => {
             </p>
 
             <div className="flex items-center gap-4">
-              <Button size={"lg"} >
+              <Button size={"lg"} onClick={() => router.push("/cars")}>
                 Browse Cars
               </Button>
 
-              <Button variant={"outline"} size={"lg"}>
+              <Button variant={"outline"} size={"lg"} onClick={() => router.push("/create-car")}>
                 Sell Your Car
               </Button>
             </div>

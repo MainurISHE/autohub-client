@@ -6,6 +6,7 @@ import { CarActions } from "@/entities/car/ui/car-actions";
 import { useParams, useRouter } from "next/navigation";
 import { useCarQuery } from "@/entities/car/hooks/use-car-query";
 import { Container } from "@/shared/ui/container";
+import axios from "axios";
 import {
   Calendar,
   Gauge,
@@ -46,6 +47,26 @@ export default function CarPage() {
   }
 
   if (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return (
+        <Container>
+          <div className="flex min-h-[500px] flex-col items-center justify-center text-center">
+            <p className="text-sm font-medium text-muted-foreground">404</p>
+
+            <h2 className="mt-2 text-2xl font-semibold">Car not found</h2>
+
+            <p className="mt-2 max-w-md text-muted-foreground">
+              The car you are looking for does not exist or has been removed.
+            </p>
+
+            <div className="mt-6">
+              <BackButton label="Back to cars" />
+            </div>
+          </div>
+        </Container>
+      );
+    }
+
     return (
       <Container>
         <div className="flex min-h-[500px] flex-col items-center justify-center text-center">
